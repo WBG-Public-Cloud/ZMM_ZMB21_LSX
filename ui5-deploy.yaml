@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=https://sap.github.io/ui5-tooling/schema/ui5.yaml.json
+
+specVersion: "3.1"
+metadata:
+  name: zmb21lsx
+type: application
+builder:
+  resources:
+    excludes:
+      - /test/**
+      - /localService/**
+  customTasks:
+    - name: deploy-to-abap
+      afterTask: generateCachebusterInfo
+      configuration:
+        target:
+          destination: dev_citek_deploy
+          url: https://my402249-api.s4hana.cloud.sap
+        app:
+          name: ZMB21LSX
+          package: ZPK_MM_ZMB21_LSX
+          transport: YWSK900488
+        exclude:
+          - /test/
