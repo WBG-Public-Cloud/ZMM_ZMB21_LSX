@@ -1,200 +1,157 @@
-<c:FragmentDefinition
-controllerName="sap.ui.table.sample.Basic.Controller"
-xmlns="sap.ui.table"
-xmlns:mvc="sap.ui.core.mvc"
-xmlns:u="sap.ui.unified"
-xmlns:c="sap.ui.core"
-xmlns:m="sap.m"
-xmlns:f="sap.ui.layout.form"
-xmlns:l="sap.ui.layout"
->
-    <m:Dialog
-     id="idHeaderTextInput"
-     title="Reservation"
-     horizontalScrolling="false"
-     verticalScrolling="false">
-    <m:content>
-    	<m:VBox class="sapUiSmallMargin" id="formContainer"> 
-			<f:SimpleForm id="SimpleFormChangeColumn_twoGroups234"
-					editable="true"
-					layout="ColumnLayout"
-					title="Header Reservation"
-					columnsM="2"
-					columnsL="2"
-					columnsXL="2"> 
-					<f:content>
-						<!-- Reservation Details -->
-						
-						<m:Label text="Movement Type" />
-						<m:Input placeholder="311" change="onChange" />
+<c:FragmentDefinition  
+controllerName="sap.ui.comp.sample.smartfield.SmartFieldWithValueHelp.Main"
+xmlns="sap.ui.table" 
+xmlns:mvc="sap.ui.core.mvc" 
+xmlns:u="sap.ui.unified" 
+xmlns:c="sap.ui.core" 
+xmlns:m="sap.m" 
+xmlns:f="sap.ui.layout.form" 
+xmlns:l="sap.ui.layout">
+    <m:Dialog id="idHeaderTextInput" title="Reservation">
+        <m:VBox class="sapUiSmallMargin" id="formContainer">
+            <f:SimpleForm id="SimpleFormDisplayColumn_threeGroups346" layout="ColumnLayout" columnsM="2" columnsL="2" columnsXL="2">
+                <f:content>
 
-						<m:Label text="Company Code" />
-						<m:Input placeholder="1000"/>
+                    <m:Label text="Receiving Sloc"/>
+                    <m:Input id="ReceivingSloc" value='{selectedItem>/header/ReceivingSloc}' change="onChangeReceivingSloc" required="true"/>
 
-						<m:Label text="Base Date" />
-						<m:Input required="true"/>
+                    <m:Label text="Movement Type"/>
+                    <m:Input id="MovementType" value='{selectedItem>/header/MovementType}' required="true"/>
 
-						<m:Label text="Goods Recipient" />
+                    <m:Label text="Cost Center"/>
+                    <m:Input id="CostCenter" value='{selectedItem>/header/CostCenter}' required="true"/>
 
-						<m:Label text="Receiving Storage Location" />
-						<m:Input 
-							required="true"
-							id="inputSloc"
-							showSuggestion="true"
-							showValueHelp="true"
-							valueHelpRequest=".onValueHelpRequest">
-					    </m:Input>
+                    <m:Label text="Base Date"/>
+                    <m:Input id="BaseDate" value='{selectedItem>/header/BaseDate}' required="true"/>
 
+                    <m:Label text="Asset"/>
+                    <m:Input id="Asset" value='{selectedItem>/header/Asset}'/>
 
-						<!-- Administrative Data -->
-						<c:Title text="Administrative Data" />
-						<m:Label text="Created By" />
-						<m:Text text="Truong Quang Khai"/>
+                    <m:Label text="G/L Account"/>
+                    <m:Input id="GLAccount" value='{selectedItem>/header/GLAccount}'/>
 
-						<m:Label text="Created On" />
-						<m:Text text="16/04/2024"></m:Text>
-					</f:content>
-			</f:SimpleForm>
-	    </m:VBox>
+                    <m:Label text="Requistion Department"/>
+                    <m:Input id="RequistionDepartment" value='{selectedItem>/header/RequistionDepartment}'/>
 
-    <Table
-            rows="{/ProductCollection}"
-            selectionMode="MultiToggle"
-            paste="onPaste"
-            ariaLabelledBy="title">
-            <extension>
-                <m:OverflowToolbar style="Clear">
-                    <m:Title id="title" text="Reservation Items"/>
-                </m:OverflowToolbar>
-            </extension>
-            <columns>
-                <Column width="11rem">
-                    <m:Label text="Product Name" />
-                    <template>
-                        <m:Text text="{Name}" wrapping="false" />
-                    </template>
-                </Column>
-                <Column width="11rem">
-                    <m:Label text="Product Id" />
-                    <template>
-                        <m:Input value="{ProductId}"/>
-                    </template>
-                </Column>
-                <Column width="6rem" hAlign="End">
-                    <m:Label text="Quantity" />
-                    <template>
-                        <m:Label text="{Quantity}" />
-                    </template>
-                </Column>
-                <Column width="9rem">
-                    <m:Label text="Status" />
-                    <template>
-                        <m:ObjectStatus text="{Status}" state="{
-                            path: 'Available',
-                            formatter: '.formatAvailableToObjectState'
-                        }"/>
-                    </template>
-                </Column>
-                <Column width="9rem">
-                    <m:Label text="Price" />
-                    <template>
-                        <u:Currency value="{Price}" currency="{CurrencyCode}"/>
-                    </template>
-                </Column>
-                <Column width="12rem">
-                    <m:Label text="Supplier" />
-                    <template>
-                        <m:ComboBox value="{SupplierName}" items="{/Suppliers}">
-                            <c:Item text="{Name}"/>
-                        </m:ComboBox>
-                    </template>
-                </Column>
-                <Column width="9rem">
-                    <m:Label text="Image" />
-                    <template>
-                        <m:Link text="Show Image" href="{ProductPicUrl}" target="_blank"/>
-                    </template>
-                </Column>
-                <Column width="9rem">
-                    <m:Label text="Details" />
-                    <template>
-                        <m:Button text="Show Details" press="handleDetailsPress"/>
-                    </template>
-                </Column>
-                <Column width="7rem">
-                    <m:Label text="Heavy Weight" />
-                    <template>
-                        <m:CheckBox selected="{
-                            path: 'Heavy',
-                            type: 'sap.ui.model.type.String'
-                        }"/>
-                    </template>
-                </Column>
-                <Column width="12rem">
-                    <m:Label text="Main Category" />
-                    <template>
-                        <m:Select selectedKey="{Category}" items="{/Categories}">
-                            <c:Item text="{Name}" key="{Name}"/>
-                        </m:Select>
-                    </template>
-                </Column>
-                <Column width="12rem">
-                    <m:Label text="Additional Categories" />
-                    <template>
-                        <m:MultiInput
-                            tokenUpdate="updateMultipleSelection"
-                            value="{AdditionalCategory}"
-                            tokens="{AdditionalCategoriesSelection}"
-                            suggestionItems="{
-                                path: '/Categories',
-                                sorter: { path: 'Name' }
-                            }"
-                            showValueHelp="false"
-                            >
-                            <m:tokens>
-                                <m:Token key="{Key}" text="{Name}"/>
-                            </m:tokens>
-                            <m:suggestionItems>
-                                <c:Item key="{ProductId}" text="{Name}" />
-                            </m:suggestionItems>
-                        </m:MultiInput>
-                    </template>
-                </Column>
-                <Column width="6rem" hAlign="Center">
-                    <m:Label text="Status" />
-                    <template>
-                        <c:Icon src="{
-                            path: 'Available',
-                            formatter: '.formatAvailableToIcon'
-                        }"/>
-                    </template>
-                </Column>
-                <Column width="11rem" hAlign="Center">
-                    <m:Label text="Delivery Date" />
-                    <template>
-                        <m:DatePicker value="{
-                            path: 'DeliveryDate',
-                            type: 'sap.ui.model.type.Date',
-                            formatOptions: {source: {pattern: 'timestamp'}}
-                        }"/>
-                    </template>
-                </Column>
-            </columns>
-        </Table>
-    </m:content>
- 
+                    <m:Label text="Person"/>
+                    <m:Input id="Person" value='{selectedItem>/header/Person}'/>
+
+                    <m:Label text="Note"/>
+                    <m:Input id="Note" value='{selectedItem>/header/Note}'/>
+
+                </f:content>
+            </f:SimpleForm>
+        </m:VBox>
+        <m:content>
+            <!-- <u:ObjectPageLayout> -->
+            <Table id="tableItem" rows="{selectedItem>/items}" selectionMode="None" paste="onPaste" ariaLabelledBy="title">
+                <extension>
+                    <m:OverflowToolbar style="Clear">
+                        <m:Title id="title" text="Reservation Items"/>
+                    </m:OverflowToolbar>
+                </extension>
+                <columns>
+                    <Column width="11rem">
+                        <m:Label text="Plant"/>
+                        <template>
+                            <m:Text id="Plant" text="{selectedItem>Plant}"/>
+                        </template>
+                    </Column>
+                    <Column width="11rem">
+                        <m:Label text="Order"/>
+                        <template>
+                            <m:Text id="Order" text="{selectedItem>Order}"/>
+                        </template>
+                    </Column>
+                    <Column width="6rem" hAlign="End">
+                        <m:Label text="Item"/>
+                        <template>
+                            <m:Text id="Item" text="{selectedItem>Item}"/>
+                        </template>
+                    </Column>
+                    <Column width="9rem">
+                        <m:Label text="Component"/>
+                        <template>
+                            <m:Text id="Component" text="{selectedItem>Component}"/>
+                        </template>
+                    </Column>
+                    <Column width="9rem">
+                        <m:Label text="Component Description"/>
+                        <template>
+                            <m:Text id="ComponentDescription" text="{selectedItem>ComponentDescription}"/>
+                        </template>
+                    </Column>
+                    <Column width="12rem">
+                        <m:Label text="Requirement Quantity"/>
+                        <template>
+                            <m:Text id="RequirementQuantity" text="{selectedItem>RequirementQuantity}"/>
+                        </template>
+                    </Column>
+                    <Column width="9rem">
+                        <m:Label text="Base Unit"/>
+                        <template>
+                            <m:Text id="BaseUnit" text="{selectedItem>BaseUnit}"/>
+                        </template>
+                    </Column>
+                    <Column width="9rem">
+                        <m:Label text="Issue Sloc"/>
+                        <template>
+                            <m:Input change="onChangeIssueSloc" id="IssueSloc" value="{selectedItem>IssueSloc}" />
+                        </template>
+                    </Column>
+                    <Column width="7rem">
+                        <m:Label text="Request Quantity"/>
+                        <template>
+                            <m:Input id="RequestQuantity" value="{selectedItem>RequestQuantity}"/>
+                        </template>
+                    </Column>
+                    <Column width="12rem">
+                        <m:Label text="UU Stock"/>
+                        <template>
+                            <m:Text id="UUStock" text="{selectedItem>UUStock}"/>
+                        </template>
+                    </Column>
+                    <Column width="12rem">
+                        <m:Label text="QI Stock"/>
+                        <template>
+                            <m:Text id="QIStock" text="{selectedItem>QIStock}"/>
+                        </template>
+                    </Column>
+                    <Column width="6rem" hAlign="Center">
+                        <m:Label text="Avaible UU Stock"/>
+                        <template>
+                            <m:Text id="AvaibleUUStock" text="{selectedItem>AvaibleUUStock}"/>
+                        </template>
+                    </Column>
+                    <Column width="11rem" hAlign="Center">
+                        <m:Label text="Material Group"/>
+                        <template>
+                            <m:Text id="MaterialGroup" text="{selectedItem>MaterialGroup}"/>
+                        </template>
+                    </Column>
+                    <Column width="11rem" hAlign="Center">
+                        <m:Label text="Material Type"/>
+                        <template>
+                            <m:Text id="MaterialType" text="{selectedItem>MaterialType}"/>
+                        </template>
+                    </Column>
+                    <Column width="11rem" hAlign="Center">
+                        <m:Label text="Long Text"/>
+                        <template>
+                            <m:Input id="LongText" value="{selectedItem>LongText}" change="onChangeLongText"/>
+                        </template>
+                    </Column>
+                </columns>
+            </Table>
+            <!-- </u:ObjectPageLayout> -->
+        </m:content>
+
         <m:beginButton>
-            <m:Button type="Accept"
-                text="Create"
-                press="._generateInvalidUserInput" />
+            <m:Button type="Accept" text="Create" press="._onPostReservation"/>
         </m:beginButton>
- 
+
         <m:endButton>
-            <m:Button id="Reject"
-            text="Exit"
-            type="Reject"
-            press="._closeDialog"
-            ariaHasPopup="Dialog" />
+            <m:Button id="Reject" text="Close" type="Reject" press="._closeDialog" ariaHasPopup="Dialog"/>
         </m:endButton>
-     </m:Dialog>
+    </m:Dialog>
 </c:FragmentDefinition>

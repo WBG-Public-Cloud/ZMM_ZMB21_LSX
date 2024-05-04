@@ -1,56 +1,46 @@
 <core:FragmentDefinition
-	xmlns="sap.m"
-	xmlns:l="sap.ui.layout"
-	xmlns:f="sap.ui.layout.form"
+	xmlns="sap.ui.comp.valuehelpdialog"
+	xmlns:m="sap.m"
+	xmlns:fb="sap.ui.comp.filterbar"
 	xmlns:core="sap.ui.core">
-	<VBox class="sapUiSmallMargin">
-		<f:Form id="FormChange354"
-			editable="true">
-			<f:title>
-				<core:Title text="Address" />
-			</f:title>
-			<f:layout>
-				<f:ResponsiveGridLayout
-					labelSpanXL="3"
-					labelSpanL="3"
-					labelSpanM="3"
-					labelSpanS="12"
-					adjustLabelSpan="false"
-					emptySpanXL="4"
-					emptySpanL="4"
-					emptySpanM="4"
-					emptySpanS="0"
-					columnsXL="1"
-					columnsL="1"
-					columnsM="1"
-					singleContainerFullSize="false" />
-			</f:layout>
-			<f:formContainers>
-				<f:FormContainer>
-					<f:formElements>
-						<f:FormElement label="Name">
-							<f:fields>
-								<Input value="SupplierName" id="name"/>
-							</f:fields>
-						</f:FormElement>
-						<f:FormElement label="Street">
-							<f:fields>
-								<Input value="Street" />
-							</f:fields>
-						</f:FormElement>
-						<f:FormElement label="ZIP Code/City">
-							<f:fields>
-								<Input value="Street" />
-							</f:fields>
-						</f:FormElement>
-						<f:FormElement label="Country">
-							<f:fields>
-								<Input value="Street" />
-							</f:fields>
-						</f:FormElement>
-					</f:formElements>
-				</f:FormContainer>
-			</f:formContainers>
-		</f:Form>
-	</VBox>
+	<ValueHelpDialog
+		title="GL Account"
+		ok=".onValueHelpOkPress"
+		cancel=".onValueHelpCancelPress"
+		afterClose=".onValueHelpAfterClose"
+		key="GLAccount">
+		<filterBar>
+			<fb:FilterBar advancedMode="true" search=".onFilterBarSearch" isRunningInValueHelpDialog="true">
+				<fb:filterGroupItems>
+					<fb:FilterGroupItem
+						groupName="__$INTERNAL$"
+						name="CompanyCode"
+						label="Company Code"
+						visibleInFilterBar="true">
+						<fb:control>
+							<m:Input name="CompanyCode" />
+						</fb:control>
+					</fb:FilterGroupItem>                
+					<fb:FilterGroupItem
+						groupName="__$INTERNAL$"
+						name="GLAccount"
+						label="GLAccount"
+						visibleInFilterBar="true">
+						<fb:control>
+							<m:Input name="GLAccount" />
+						</fb:control>
+					</fb:FilterGroupItem>
+					<fb:FilterGroupItem
+						groupName="__$INTERNAL$"
+						name="GLAccountName"
+						label="GLAccount Name"
+						visibleInFilterBar="true">
+						<fb:control>
+							<m:Input name="GLAccountName" />
+						</fb:control>
+					</fb:FilterGroupItem>
+				</fb:filterGroupItems>
+			</fb:FilterBar>
+		</filterBar>
+	</ValueHelpDialog>
 </core:FragmentDefinition>

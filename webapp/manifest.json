@@ -135,7 +135,7 @@
                                     "Create": {
                                         "id": "CreateButton",
                                         "text": "Create Reservation",
-                                        "press": "Create",
+                                        "press": "btnCreate",
                                         "requiresSelection": true
                                     }
                                 }
