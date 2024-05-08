@@ -4,41 +4,43 @@
 	xmlns:fb="sap.ui.comp.filterbar"
 	xmlns:core="sap.ui.core">
 	<ValueHelpDialog
-		title="GL Account"
-		ok=".onValueHelpOkPress"
-		cancel=".onValueHelpCancelPress"
-		afterClose=".onValueHelpAfterClose"
-		key="GLAccount">
+	    id   ="SearchHelpStorageLocation"
+		title="Storage Location"
+		ok=".onValueHelpOkPressStorageLocation"
+		cancel=".onValueHelpCancelPressStorageLocation"
+		afterClose=".onValueHelpAfterCloseStorageLocation"
+		key="StorageLocation"
+		supportMultiselect="false">
 		<filterBar>
-			<fb:FilterBar advancedMode="true" search=".onFilterBarSearch" isRunningInValueHelpDialog="true">
+			<fb:FilterBar advancedMode="true" search=".onFilterBarSearchStorageLocation" isRunningInValueHelpDialog="true" >
 				<fb:filterGroupItems>
 					<fb:FilterGroupItem
 						groupName="__$INTERNAL$"
-						name="CompanyCode"
-						label="Company Code"
+						name="Plant"
+						label="Plant"
 						visibleInFilterBar="true">
 						<fb:control>
-							<m:Input name="CompanyCode" />
+							<m:Input name="Plant" />
 						</fb:control>
 					</fb:FilterGroupItem>                
-					<fb:FilterGroupItem
+					<!-- <fb:FilterGroupItem
 						groupName="__$INTERNAL$"
-						name="GLAccount"
-						label="GLAccount"
+						name="StorageLocation"
+						label="StorageLocation"
 						visibleInFilterBar="true">
 						<fb:control>
-							<m:Input name="GLAccount" />
+							<m:Input name="StorageLocation" />
 						</fb:control>
 					</fb:FilterGroupItem>
 					<fb:FilterGroupItem
 						groupName="__$INTERNAL$"
-						name="GLAccountName"
-						label="GLAccount Name"
+						name="StorageLocationName"
+						label="StorageLocation Name"
 						visibleInFilterBar="true">
 						<fb:control>
-							<m:Input name="GLAccountName" />
+							<m:Input name="StorageLocationName" />
 						</fb:control>
-					</fb:FilterGroupItem>
+					</fb:FilterGroupItem> -->
 				</fb:filterGroupItems>
 			</fb:FilterBar>
 		</filterBar>

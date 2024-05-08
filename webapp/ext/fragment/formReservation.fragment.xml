@@ -13,16 +13,24 @@ xmlns:l="sap.ui.layout">
                 <f:content>
 
                     <m:Label text="Receiving Sloc"/>
-                    <m:Input id="ReceivingSloc" value='{selectedItem>/header/ReceivingSloc}' change="onChangeReceivingSloc" required="true"/>
+                    <m:Input id="ReceivingSloc" value='{selectedItem>/header/ReceivingSloc}' showValueHelp="true" valueHelpRequest="onReceivingSlocValueHelp" change="onChangeReceivingSloc" required="true"/>
 
                     <m:Label text="Movement Type"/>
-                    <m:Input id="MovementType" value='{selectedItem>/header/MovementType}' required="true"/>
-
-                    <m:Label text="Cost Center"/>
-                    <m:Input id="CostCenter" value='{selectedItem>/header/CostCenter}' required="true"/>
+                    <m:Input id="MovementType" value='{selectedItem>/header/MovementType}' showValueHelp="true" valueHelpRequest="onMovementTypeValueHelp" required="true"/>
 
                     <m:Label text="Base Date"/>
-                    <m:Input id="BaseDate" value='{selectedItem>/header/BaseDate}' required="true"/>
+                    <!-- <m:Input id="BaseDate" value='{selectedItem>/header/BaseDate}' required="true" type="Text"/> -->
+                    <m:DatePicker id="DP1" 
+                    value="{
+						'path':'selectedItem>/header/BaseDate',
+						'type':'sap.ui.model.type.Date'
+					}"
+                    placeholder="Base Date" 
+                    class="sapUiSmallMarginBottom" 
+                    required="true"/>
+
+                    <m:Label text="Cost Center"/>
+                    <m:Input id="CostCenter" value='{selectedItem>/header/CostCenter}' />
 
                     <m:Label text="Asset"/>
                     <m:Input id="Asset" value='{selectedItem>/header/Asset}'/>
@@ -118,7 +126,7 @@ xmlns:l="sap.ui.layout">
                         </template>
                     </Column>
                     <Column width="6rem" hAlign="Center">
-                        <m:Label text="Avaible UU Stock"/>
+                        <m:Label text="Available UU Stock"/>
                         <template>
                             <m:Text id="AvaibleUUStock" text="{selectedItem>AvaibleUUStock}"/>
                         </template>

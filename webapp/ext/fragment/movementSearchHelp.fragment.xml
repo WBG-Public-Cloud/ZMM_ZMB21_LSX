@@ -1,0 +1,47 @@
+<core:FragmentDefinition
+	xmlns="sap.ui.comp.valuehelpdialog"
+	xmlns:m="sap.m"
+	xmlns:fb="sap.ui.comp.filterbar"
+	xmlns:core="sap.ui.core">
+	<ValueHelpDialog
+		title="Movement Type"
+		ok=".onValueHelpOkPressMovementType"
+		cancel=".onValueHelpCancelPressMovementType"
+		afterClose=".onValueHelpAfterCloseMovementType"
+		key="GoodsMovementType"
+		supportMultiselect="false">
+		<filterBar>
+			<fb:FilterBar  advancedMode="true" search=".onFilterBarSearchMovementType" isRunningInValueHelpDialog="true" >
+				<fb:filterGroupItems >
+					<fb:FilterGroupItem
+						groupName="__$INTERNAL$"
+						name="GoodsMovementType"
+						label="Movement Type"
+						visibleInFilterBar="true">
+						<fb:control>
+							<m:Input name="GoodsMovementType" />
+						</fb:control>
+					</fb:FilterGroupItem>                
+					<!-- <fb:FilterGroupItem
+						groupName="__$INTERNAL$"
+						name="StorageLocation"
+						label="StorageLocation"
+						visibleInFilterBar="true">
+						<fb:control>
+							<m:Input name="StorageLocation" />
+						</fb:control>
+					</fb:FilterGroupItem>
+					<fb:FilterGroupItem
+						groupName="__$INTERNAL$"
+						name="StorageLocationName"
+						label="StorageLocation Name"
+						visibleInFilterBar="true">
+						<fb:control>
+							<m:Input name="StorageLocationName" />
+						</fb:control>
+					</fb:FilterGroupItem> -->
+				</fb:filterGroupItems>
+			</fb:FilterBar>
+		</filterBar>
+	</ValueHelpDialog>
+</core:FragmentDefinition>

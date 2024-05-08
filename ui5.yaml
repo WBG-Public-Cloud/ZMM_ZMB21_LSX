@@ -17,12 +17,12 @@ server:
           url: https://ui5.sap.com
         backend:
           - path: /sap
-            url: https://my402230-api.s4hana.cloud.sap
-            destination: cus_citek
+            url: https://my412831-api.s4hana.cloud.sap
+            destination: WBG_S4HC_CUS
     - name: fiori-tools-appreload
       afterMiddleware: compression
       configuration:
-        port: 35729
+        port: 35730
         path: webapp
         delay: 300
     - name: fiori-tools-preview
