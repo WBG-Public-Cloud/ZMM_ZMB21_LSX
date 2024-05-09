@@ -60,6 +60,12 @@ xmlns:l="sap.ui.layout">
                 </extension>
                 <columns>
                     <Column width="11rem">
+                        <m:Label text="No"/>
+                        <template>
+                            <m:Text id="No" text="{selectedItem>No}"/>
+                        </template>
+                    </Column>
+                    <Column width="11rem">
                         <m:Label text="Plant"/>
                         <template>
                             <m:Text id="Plant" text="{selectedItem>Plant}"/>
@@ -92,7 +98,15 @@ xmlns:l="sap.ui.layout">
                     <Column width="12rem">
                         <m:Label text="Requirement Quantity"/>
                         <template>
-                            <m:Text id="RequirementQuantity" text="{selectedItem>RequirementQuantity}"/>
+                            <m:Text id="RequirementQuantity" text="{   parts: ['selectedItem>RequirementQuantity', 'selectedItem>BaseUnit'], 
+                                                                    type: 'sap.ui.model.type.Unit',
+                                                                    formatOptions: {
+                                                                        preserveDecimals : false,
+                                                                        decimals: 2,
+                                                                        maxFractionDigits: 2,
+                                                                        minFractionDigits: 2
+                                                                    }
+                                                            }"/>
                         </template>
                     </Column>
                     <Column width="9rem">
@@ -104,7 +118,7 @@ xmlns:l="sap.ui.layout">
                     <Column width="9rem">
                         <m:Label text="Issue Sloc"/>
                         <template>
-                            <m:Input change="onChangeIssueSloc" id="IssueSloc" value="{selectedItem>IssueSloc}" />
+                            <m:Input showValueHelp="true" valueHelpRequest="onReceivingSlocValueHelp" change="onChangeIssueSloc" id="IssueSloc" value="{selectedItem>IssueSloc}" />
                         </template>
                     </Column>
                     <Column width="7rem">
@@ -116,19 +130,44 @@ xmlns:l="sap.ui.layout">
                     <Column width="12rem">
                         <m:Label text="UU Stock"/>
                         <template>
-                            <m:Text id="UUStock" text="{selectedItem>UUStock}"/>
+                            <m:Text id="UUStock" text="{    parts: ['selectedItem>UUStock', 'selectedItem>BaseUnit'], 
+                                                            type: 'sap.ui.model.type.Unit',
+                                                            formatOptions: {
+                                                                        preserveDecimals : false,
+                                                                        decimals: 2,
+                                                                        maxFractionDigits: 2,
+                                                                        minFractionDigits: 2
+                                                                    }
+                                                        }"/>
                         </template>
                     </Column>
                     <Column width="12rem">
                         <m:Label text="QI Stock"/>
                         <template>
-                            <m:Text id="QIStock" text="{selectedItem>QIStock}"/>
+                            <m:Text id="QIStock" text="{   parts: ['selectedItem>QIStock', 'selectedItem>BaseUnit'], 
+                                                            type: 'sap.ui.model.type.Unit',
+                                                            formatOptions: {
+                                                                        preserveDecimals : false,
+                                                                        decimals: 2,
+                                                                        maxFractionDigits: 2,
+                                                                        minFractionDigits: 2
+                                                                    }
+                                                        }"/>
                         </template>
                     </Column>
                     <Column width="6rem" hAlign="Center">
                         <m:Label text="Available UU Stock"/>
                         <template>
-                            <m:Text id="AvaibleUUStock" text="{selectedItem>AvaibleUUStock}"/>
+                            <!-- <m:Text id="AvailableUUStock" text="{selectedItem>AvailableUUStock}"/> -->
+                            <m:Text id="AvailableUUStock" text="{   parts: ['selectedItem>AvailableUUStock', 'selectedItem>BaseUnit'], 
+                                                                    type: 'sap.ui.model.type.Unit',
+                                                                    formatOptions: {
+                                                                        preserveDecimals : false,
+                                                                        decimals: 2,
+                                                                        maxFractionDigits: 2,
+                                                                        minFractionDigits: 2
+                                                                    }
+                                                            }" />
                         </template>
                     </Column>
                     <Column width="11rem" hAlign="Center">
@@ -147,6 +186,46 @@ xmlns:l="sap.ui.layout">
                         <m:Label text="Long Text"/>
                         <template>
                             <m:Input id="LongText" value="{selectedItem>LongText}" change="onChangeLongText"/>
+                        </template>
+                    </Column>
+                    <Column width="11rem" hAlign="Center">
+                        <m:Label text="Open Quantity"/>
+                        <template>
+                            <m:Text id="OpenQuantity" text="{   parts: ['selectedItem>OpenQuantity', 'selectedItem>BaseUnit'], 
+                                                                    type: 'sap.ui.model.type.Unit',
+                                                                    formatOptions: {
+                                                                        preserveDecimals : false,
+                                                                        decimals: 2,
+                                                                        maxFractionDigits: 2,
+                                                                        minFractionDigits: 2
+                                                                    }
+                                                            }" />
+                        </template>
+                    </Column>
+                    <Column width="11rem" hAlign="Center">
+                        <m:Label text="GAP ReservationQty"/>
+                        <template>
+                            <m:Text id="GAPReservationQty" text="{  parts: ['selectedItem>GAPReservationQty', 'selectedItem>BaseUnit'], 
+                                                                    type: 'sap.ui.model.type.Unit',
+                                                                    formatOptions: {
+                                                                        preserveDecimals : false,
+                                                                        decimals: 2,
+                                                                        maxFractionDigits: 2,
+                                                                        minFractionDigits: 2
+                                                                    }
+                                                            }"/>
+                        </template>
+                    </Column>
+                    <Column width="11rem" hAlign="Center">
+                        <m:Label text="Requirement Date"/>
+                        <template>
+                            <m:Text id="RequirementDate" text="{
+                                                                path : 'selectedItem>RequirementDate',
+                                                                type : 'sap.ui.model.type.Date',
+                                                                formatOptions: {
+                                                                    style : 'long'
+                                                                }
+                                                            }"/>
                         </template>
                     </Column>
                 </columns>

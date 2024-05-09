@@ -40,8 +40,8 @@ sap.ui.define([
             let oSelectedContext = this.extensionAPI.getSelectedContexts()
             let selectItem = []
 
-            oSelectedContext.forEach(element => {
-                selectItem.push(this.readDocumentData(element))
+            oSelectedContext.forEach((element, index) => {
+                selectItem.push(this.readDocumentData(element, index))
             });
 
             this.openBusyDialog()
@@ -81,10 +81,10 @@ sap.ui.define([
 
         },
 
-        readDocumentData: function (element) {
+        readDocumentData: function (element, index) {
             return new Promise((resolve, reject) => {
                 let oModel = element.getModel()
-                oModel.read(element.getPath(), {
+                oModel.read(element.getPath(),{
                     success: function (oData, oResponse) {
                         let data = {
                             Plant: oData.Plant,
@@ -101,7 +101,11 @@ sap.ui.define([
                             AvailableUUStock: oData.AvailableUUStock,
                             MaterialGroup: oData.MaterialGroup,
                             MaterialType: oData.MaterialType,
-                            LongText: oData.LongText
+                            LongText: oData.LongText,
+                            OpenQuantity : oData.OpenQuantity,
+                            GAPReservationQty : oData.GAPReservationQty,
+                            RequirementDate : oData.RequirementDate,
+                            No : index
                         }
                         resolve(data)
                     },
@@ -204,7 +208,7 @@ sap.ui.define([
 
         },
 
-       ///------------T2---------- Change Storage Location -----------------------------------
+        ///------------T2---------- Change Storage Location -----------------------------------
         onChangeIssueSloc: function (oEvent) { // Dòng item change issue sloc\
             let that = this
             let header = this.reviewFormReservation.getModel("selectedItem").oData.header
@@ -242,15 +246,18 @@ sap.ui.define([
         },
 
         ///------------T2---------- Change ReceivingSloc-----------------------------------
-        onChangeReceivingSloc: function() {
+        onChangeReceivingSloc: function () {
             let that = this
             let dataRequest = this.reviewFormReservation.getModel("selectedItem").getData()
             let header = this.reviewFormReservation.getModel("selectedItem").oData.header
             let arrItem = this.reviewFormReservation.getModel("selectedItem").oData.items
 
-            let dataJSON = JSON.stringify(dataRequest) 
 
-           var url_render = "https://" + window.location.hostname + "/sap/bc/http/sap/ZMM_HTTP_RECEIVINGSLOC?=";
+
+            let dataJSON = JSON.stringify(dataRequest)
+
+            var url_render = "https://" + window.location.hostname + "/sap/bc/http/sap/ZMM_HTTP_RECEIVINGSLOC?=";
+            that.openBusyDialog()
             $.ajax({
                 url: url_render,
                 type: "POST",
@@ -259,26 +266,46 @@ sap.ui.define([
                 success: function (response, textStatus, jqXHR) {
                     let dataResponse = JSON.parse(response)
                     console.log(dataResponse)
-                    
-                    if (dataResponse.status == 'Success') {
-                        // header = dataResponse.header
-                        // arrItem = dataResponse.items
-                        console.log("header", header)
-                        console.log("arrItem", arrItem)
+                    // sử dụng map để read array
+                    const map = new Map()
 
-                        console.log("dataResponse.header", dataResponse.header)
-                        console.log("dataResponse.items",  dataResponse.items)
+                    Object.keys(dataResponse.items).forEach(index => {
+                        let key = `${dataResponse.items[index].Plant}-${dataResponse.items[index].Order}-${dataResponse.items[index].Item}`
+                        // let key = `${dataResponse.items[index].Plant}-${dataResponse.items[index].Order}`
+                        // let value = dataResponse.items[index].AvailableUUStock;
+                        let value = { 
+                                        AvailableUUStock  : dataResponse.items[index].AvailableUUStock,
+                                        GAPReservationQty : dataResponse.items[index].GAPReservationQty,
+                                    }
+
+                        map.set(key, value);
+                    });
+
+                    arrItem.forEach(element => {
+                        let key = `${element.Plant}-${element.Order}-${element.Item} `
+                        // let key = `${element.Plant}-${element.Order}`
+
+                        let found = map.get(key)
+                        element.AvailableUUStock  = found.AvailableUUStock
+                        element.GAPReservationQty = found.GAPReservationQty
+                    })
+
+
+                    if (dataResponse.status == 'Success') {
+                        // update Model For Fragment reviewFormReservation
+                        var oModel = new sap.ui.model.json.JSONModel();
+                        oModel.setData({ header: header, items: arrItem });
+                        // oModel.setData(dataResponse);
+                        that.reviewFormReservation.setModel(oModel, "selectedItem")
                     }
-                    // update Model For Fragment reviewFormReservation
-                    var oModel = new sap.ui.model.json.JSONModel();
-                    oModel.setData({ header: header, items: arrItem });
-                    that.reviewFormReservation.setData(oModel, "selectedItem")
+                    that.busyDialog.close()
                 },
                 error: function (error) { // this.busyDialog.close();
                     console.log("error", JSON.stringify(error))
                     console.log("error", error)
+                    that.busyDialog.close()
                 }
-            }); 
+            });
         },
 
         ///---------T2------------- Search Help Sloc -----------------------------------
@@ -385,6 +412,7 @@ sap.ui.define([
             oModel.setData({ header: header, items: arrItem });
             this._oVHD.close()
             this.reviewFormReservation.setModel(oModel, "selectedItem")
+            this.onChangeReceivingSloc()
         },
 
         onValueHelpCancelPressStorageLocation: function () {
@@ -394,9 +422,6 @@ sap.ui.define([
             this._oVHD.destroy();
         },
 
-        onValueMMMMMMM: function () {
-            this._oVHD.destroy();
-        },
         ///---------------------- Search Help Sloc -----------------------------------
 
 
@@ -414,7 +439,7 @@ sap.ui.define([
                 ]
             }
 
-            this._oBasicSearchField = new SearchField();
+            this._oBasicSearchField1 = new SearchField();
 
             this.loadFragment({
                 name: `zmb21lsx.ext.fragment.${vhProperty.fragmentName}`,
@@ -426,7 +451,7 @@ sap.ui.define([
                 oFilterBar.setFilterBarExpanded(true);
                 oDialog.getTableAsync().then(function (oTable) {
                     let aFilters = []
-                    aFilters.push( new Filter("Language", "EQ",'EN') )
+                    aFilters.push(new Filter("Language", "EQ", 'EN'))
                     // For Desktop and tabled the default table is sap.ui.table.Table
                     oTable.setModel(that.getView().getModel())
                     if (oTable.bindRows) {
@@ -442,9 +467,9 @@ sap.ui.define([
                         });
                         vhProperty.elements.forEach(value => {
                             let uiCol = new UIColumn({
-                                label: new Label({ text: value.elementName }),
-                                template: new Text({ wrapping: false, text: `{${value.element}}` })
-                            })
+                                        label: new Label({ text: value.elementName }),
+                                        template: new Text({ wrapping: false, text: `{${value.element}}` })
+                                    })
                             // uiCol.data({
                             //     fieldName: value.element
                             // })
@@ -461,16 +486,16 @@ sap.ui.define([
         _filterTableMovementType: function (oFilter) {
             var oVHDMovementType = this._oVHDMovementType;
             if (!oFilter.aFilters || oFilter.aFilters.length == 0) {
-                oFilter 
-             } else {
+                oFilter = []
+            } else {
             }
 
             this._oVHDMovementType.getTableAsync().then(function (oTable) {
                 if (oTable.bindRows) {
-                     oTable.getBinding("rows").filter(oFilter);
+                    oTable.getBinding("rows").filter(oFilter);
                 }
                 if (oTable.bindItems) {
-                     oTable.getBinding("items").filter(oFilter);
+                    oTable.getBinding("items").filter(oFilter);
                 }
 
                 oVHDMovementType.update();
@@ -501,7 +526,7 @@ sap.ui.define([
             let arrItem = this.reviewFormReservation.getModel("selectedItem").oData.items
             var aTokens = oEvent.getParameter("tokens");
             aTokens.forEach(token => {
-                header.ReceivingSloc = token.getKey()
+                header.MovementType = token.getKey()
             })
             // update Model For Fragment reviewFormReservation
             var oModel = new sap.ui.model.json.JSONModel();
