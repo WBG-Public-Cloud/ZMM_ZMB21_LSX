@@ -4,15 +4,14 @@
 	xmlns:fb="sap.ui.comp.filterbar"
 	xmlns:core="sap.ui.core">
 	<ValueHelpDialog
-	    id   ="SearchHelpGLAccount"
 		title="G/L Account"
-		ok=".onValueHelpOkPressGLAccount"
-		cancel=".onValueHelpCancelPressGLAccount"
-		afterClose=".onValueHelpAfterCloseGLAccount"
+		ok=".onValueHelpOkPress"
+		cancel=".onValueHelpCancelPress"
+		afterClose=".onValueHelpAfterClose"
 		key="GLAccountExternal"
 		supportMultiselect="false">
 		<filterBar>
-			<fb:FilterBar advancedMode="true" search=".onFilterBarSearchGLAccount" isRunningInValueHelpDialog="true" >
+			<fb:FilterBar advancedMode="true" search=".onFilterBarSearch" isRunningInValueHelpDialog="true" >
 				<fb:filterGroupItems>
 					<fb:FilterGroupItem
 						groupName="__$INTERNAL$"

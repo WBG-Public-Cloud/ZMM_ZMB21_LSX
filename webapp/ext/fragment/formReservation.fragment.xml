@@ -126,7 +126,7 @@ xmlns:l="sap.ui.layout">
                     <Column width="9rem">
                         <m:Label text="Issue Sloc"/>
                         <template>
-                            <m:Input showValueHelp="true" valueHelpRequest="onIssueSlocValueHelp" change="onChangeIssueSloc" id="IssueSloc" value="{selectedItem>IssueSloc}" />
+                            <m:Input change="onChangeIssueSloc" showValueHelp="true" valueHelpRequest="onIssueSlocValueHelp" id="IssueSloc" value="{selectedItem>IssueSloc}" />
                         </template>
                     </Column>
                     <Column width="7rem">

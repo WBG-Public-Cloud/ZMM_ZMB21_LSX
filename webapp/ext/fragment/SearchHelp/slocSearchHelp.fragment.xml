@@ -4,15 +4,14 @@
 	xmlns:fb="sap.ui.comp.filterbar"
 	xmlns:core="sap.ui.core">
 	<ValueHelpDialog
-	    id   ="SearchHelpStorageLocation"
 		title="Storage Location"
-		ok=".onValueHelpOkPressStorageLocation"
-		cancel=".onValueHelpCancelPressStorageLocation"
-		afterClose=".onValueHelpAfterCloseStorageLocation"
+		ok=".onValueHelpOkPress"
+		cancel=".onValueHelpCancelPress"
+		afterClose=".onValueHelpAfterClose"
 		key="StorageLocation"
 		supportMultiselect="false">
 		<filterBar>
-			<fb:FilterBar advancedMode="true" search=".onFilterBarSearchStorageLocation" isRunningInValueHelpDialog="true" >
+			<fb:FilterBar advancedMode="true" search=".onFilterBarSearch" isRunningInValueHelpDialog="true" >
 				<fb:filterGroupItems>
 					<fb:FilterGroupItem
 						groupName="__$INTERNAL$"
@@ -22,25 +21,7 @@
 						<fb:control>
 							<m:Input name="StorageLocation"/>
 						</fb:control>
-					</fb:FilterGroupItem>                
-					<!-- <fb:FilterGroupItem
-						groupName="__$INTERNAL$"
-						name="StorageLocation"
-						label="StorageLocation"
-						visibleInFilterBar="true">
-						<fb:control>
-							<m:Input name="StorageLocation" />
-						</fb:control>
-					</fb:FilterGroupItem>
-					<fb:FilterGroupItem
-						groupName="__$INTERNAL$"
-						name="StorageLocationName"
-						label="StorageLocation Name"
-						visibleInFilterBar="true">
-						<fb:control>
-							<m:Input name="StorageLocationName" />
-						</fb:control>
-					</fb:FilterGroupItem> -->
+					</fb:FilterGroupItem>               
 				</fb:filterGroupItems>
 			</fb:FilterBar>
 		</filterBar>
