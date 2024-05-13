@@ -30,19 +30,19 @@ xmlns:l="sap.ui.layout">
                     required="true"/>
 
                     <m:Label text="Cost Center"/>
-                    <m:Input id="CostCenter" value='{selectedItem>/header/CostCenter}' />
+                    <m:Input id="CostCenter" value='{selectedItem>/header/CostCenter}' showValueHelp="true" valueHelpRequest="onCostCenterValueHelp"/>
 
                     <m:Label text="Asset"/>
-                    <m:Input id="Asset" value='{selectedItem>/header/Asset}'/>
+                    <m:Input id="Asset" value='{selectedItem>/header/Asset}' showValueHelp="true" valueHelpRequest="onAssetValueHelp"/>
 
                     <m:Label text="G/L Account"/>
-                    <m:Input id="GLAccount" value='{selectedItem>/header/GLAccount}'/>
+                    <m:Input id="GLAccount" value='{selectedItem>/header/GLAccount}' showValueHelp="true" valueHelpRequest="onGLAccountValueHelp"/>
 
                     <m:Label text="Requistion Department"/>
                     <m:Input id="RequistionDepartment" value='{selectedItem>/header/RequistionDepartment}'/>
 
                     <m:Label text="Person"/>
-                    <m:Input id="Person" value='{selectedItem>/header/Person}'/>
+                    <m:Input id="Person" value='{selectedItem>/header/Person}' showValueHelp="true" valueHelpRequest="onPersonValueHelp"/>
 
                     <m:Label text="Note"/>
                     <m:Input id="Note" value='{selectedItem>/header/Note}'/>
@@ -50,9 +50,17 @@ xmlns:l="sap.ui.layout">
                 </f:content>
             </f:SimpleForm>
         </m:VBox>
+
+
         <m:content>
-            <!-- <u:ObjectPageLayout> -->
-            <Table id="tableItem" rows="{selectedItem>/items}" selectionMode="None" paste="onPaste" ariaLabelledBy="title">
+        	<!-- <m:Button   type="Reject"
+					    text="Reject"
+						press="onPress"
+						ariaDescribedBy="rejectButtonDescription genericButtonDescription">
+			</m:Button> -->
+
+            <!-- <u:ObjectPageLayout> pro    selectionMode="None"-->
+            <Table id="tableItem" rows="{selectedItem>/items}" paste="onPaste" ariaLabelledBy="title">
                 <extension>
                     <m:OverflowToolbar style="Clear">
                         <m:Title id="title" text="Reservation Items"/>
@@ -118,7 +126,7 @@ xmlns:l="sap.ui.layout">
                     <Column width="9rem">
                         <m:Label text="Issue Sloc"/>
                         <template>
-                            <m:Input showValueHelp="true" valueHelpRequest="onReceivingSlocValueHelp" change="onChangeIssueSloc" id="IssueSloc" value="{selectedItem>IssueSloc}" />
+                            <m:Input showValueHelp="true" valueHelpRequest="onIssueSlocValueHelp" change="onChangeIssueSloc" id="IssueSloc" value="{selectedItem>IssueSloc}" />
                         </template>
                     </Column>
                     <Column width="7rem">
@@ -234,7 +242,7 @@ xmlns:l="sap.ui.layout">
         </m:content>
 
         <m:beginButton>
-            <m:Button type="Accept" text="Create" press="._onPostReservation"/>
+            <m:Button id="Accept" type="Accept" text="Create" press="._onPostReservation"/>
         </m:beginButton>
 
         <m:endButton>

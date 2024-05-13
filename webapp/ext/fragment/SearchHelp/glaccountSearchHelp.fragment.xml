@@ -1,0 +1,49 @@
+<core:FragmentDefinition
+	xmlns="sap.ui.comp.valuehelpdialog"
+	xmlns:m="sap.m"
+	xmlns:fb="sap.ui.comp.filterbar"
+	xmlns:core="sap.ui.core">
+	<ValueHelpDialog
+	    id   ="SearchHelpGLAccount"
+		title="G/L Account"
+		ok=".onValueHelpOkPressGLAccount"
+		cancel=".onValueHelpCancelPressGLAccount"
+		afterClose=".onValueHelpAfterCloseGLAccount"
+		key="GLAccountExternal"
+		supportMultiselect="false">
+		<filterBar>
+			<fb:FilterBar advancedMode="true" search=".onFilterBarSearchGLAccount" isRunningInValueHelpDialog="true" >
+				<fb:filterGroupItems>
+					<fb:FilterGroupItem
+						groupName="__$INTERNAL$"
+						name="GLAccountExternal"
+						label="G/L Account External"
+						visibleInAdvancedArea="true"
+						visibleInFilterBar="true">
+						<fb:control>
+							<m:Input name="GLAccountExternal" />
+						</fb:control>
+					</fb:FilterGroupItem>                
+					<fb:FilterGroupItem
+						groupName="__$INTERNAL$"
+						name="GLAccount"
+						label="G/L Account"
+						visibleInFilterBar="true">
+						<fb:control>
+							<m:Input name="GLAccount" />
+						</fb:control>
+					</fb:FilterGroupItem>
+					<fb:FilterGroupItem
+						groupName="__$INTERNAL$"
+						name="ChartOfAccounts"
+						label="Chart Of Accounts"
+						visibleInFilterBar="true">
+						<fb:control>
+							<m:Input name="ChartOfAccounts" />
+						</fb:control>
+					</fb:FilterGroupItem>
+				</fb:filterGroupItems>
+			</fb:FilterBar>
+		</filterBar>
+	</ValueHelpDialog>
+</core:FragmentDefinition>

@@ -16,11 +16,11 @@
 				<fb:filterGroupItems>
 					<fb:FilterGroupItem
 						groupName="__$INTERNAL$"
-						name="Plant"
-						label="Plant"
+						name="StorageLocation"
+						label="Storage Location"
 						visibleInFilterBar="true">
 						<fb:control>
-							<m:Input name="Plant" />
+							<m:Input name="StorageLocation"/>
 						</fb:control>
 					</fb:FilterGroupItem>                
 					<!-- <fb:FilterGroupItem

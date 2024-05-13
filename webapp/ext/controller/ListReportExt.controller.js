@@ -12,14 +12,19 @@ sap.ui.define([
     'sap/m/Label',
     'sap/m/Text',
     'sap/ui/model/FilterOperator',
-], function (MessageToast, MessageBox, Fragment, Controller, JSONModel, Element, SearchField, Filter, UIColumn, MColumn, Label, Text, FilterOperator) {
+    'sap/ui/model/Sorter',
+    './CostCenter/costCenter'
+
+], function (MessageToast, MessageBox, Fragment, Controller, JSONModel, Element, SearchField, Filter, UIColumn, MColumn, Label, Text, FilterOperato, Sorter, CostCenter) {
     'use strict';
 
     return {
         reviewFormReservation: null,
         busyDialog: null,
 
-        onInit: function () { },
+        onInit: function () {
+
+        },
 
         //-----------T0------------------- Fragment Busy Dialog ------------------------------------------
         openBusyDialog: function () {
@@ -84,7 +89,7 @@ sap.ui.define([
         readDocumentData: function (element, index) {
             return new Promise((resolve, reject) => {
                 let oModel = element.getModel()
-                oModel.read(element.getPath(),{
+                oModel.read(element.getPath(), {
                     success: function (oData, oResponse) {
                         let data = {
                             Plant: oData.Plant,
@@ -102,10 +107,10 @@ sap.ui.define([
                             MaterialGroup: oData.MaterialGroup,
                             MaterialType: oData.MaterialType,
                             LongText: oData.LongText,
-                            OpenQuantity : oData.OpenQuantity,
-                            GAPReservationQty : oData.GAPReservationQty,
-                            RequirementDate : oData.RequirementDate,
-                            No : index
+                            OpenQuantity: oData.OpenQuantity,
+                            GAPReservationQty: oData.GAPReservationQty,
+                            RequirementDate: oData.RequirementDate,
+                            No: index
                         }
                         resolve(data)
                     },
@@ -118,6 +123,13 @@ sap.ui.define([
 
         //--------------T1---------------- Button Create Reservation In Fragment Create Reservation Details ------------------------------------------
         _onPostReservation: function (oEvent) {
+            console.log(document.getElementById("reviewReservation--tableItem-table").querySelectorAll("tr[aria-selected='true']"))
+            // console.log(document.getElementById("reviewReservation--tableItem-table").querySelectorAll("tr[aria-selected='true']"))
+
+            console.log(Fragment.byId("reviewReservation", "tableItem"))
+            console.log(Fragment.byId("reviewReservation", "tableItem").getSelectedIndex())
+            console.log(Fragment.byId("reviewReservation", "tableItem").getSelectedIndices())
+            console.log(Fragment.byId("reviewReservation", "tableItem").getSelectedIndices())
             let that = this
             let isRequire = false
             let messageRequire
@@ -252,8 +264,6 @@ sap.ui.define([
             let header = this.reviewFormReservation.getModel("selectedItem").oData.header
             let arrItem = this.reviewFormReservation.getModel("selectedItem").oData.items
 
-
-
             let dataJSON = JSON.stringify(dataRequest)
 
             var url_render = "https://" + window.location.hostname + "/sap/bc/http/sap/ZMM_HTTP_RECEIVINGSLOC?=";
@@ -273,10 +283,10 @@ sap.ui.define([
                         let key = `${dataResponse.items[index].Plant}-${dataResponse.items[index].Order}-${dataResponse.items[index].Item}`
                         // let key = `${dataResponse.items[index].Plant}-${dataResponse.items[index].Order}`
                         // let value = dataResponse.items[index].AvailableUUStock;
-                        let value = { 
-                                        AvailableUUStock  : dataResponse.items[index].AvailableUUStock,
-                                        GAPReservationQty : dataResponse.items[index].GAPReservationQty,
-                                    }
+                        let value = {
+                            AvailableUUStock: dataResponse.items[index].AvailableUUStock,
+                            GAPReservationQty: dataResponse.items[index].GAPReservationQty,
+                        }
 
                         map.set(key, value);
                     });
@@ -286,7 +296,7 @@ sap.ui.define([
                         // let key = `${element.Plant}-${element.Order}`
 
                         let found = map.get(key)
-                        element.AvailableUUStock  = found.AvailableUUStock
+                        element.AvailableUUStock = found.AvailableUUStock
                         element.GAPReservationQty = found.GAPReservationQty
                     })
 
@@ -310,11 +320,14 @@ sap.ui.define([
 
         ///---------T2------------- Search Help Sloc -----------------------------------
         onReceivingSlocValueHelp: function (oEvent) {
+
+            let Plant = this.reviewFormReservation.getModel("selectedItem").oData.items[0].Plant
+
             let that = this
 
             let vhProperty = {
                 entity: "I_StorageLocationStdVH",
-                fragmentName: 'slocSearchHelp',
+                fragmentName: 'SearchHelp/slocSearchHelp',
                 elements: [
                     { element: "Plant", elementName: "Plant" },
                     { element: "StorageLocation", elementName: "StorageLocation" },
@@ -336,8 +349,13 @@ sap.ui.define([
                 oDialog.getTableAsync().then(function (oTable) {
                     let aFilters = []
                     // aFilters.push( new Filter("Language", "EQ",'EN') )
+                    aFilters.push( new Filter("Plant", "EQ",`${Plant}`) )
+                    let aSort = new Sorter("Plant", true)
                     // For Desktop and tabled the default table is sap.ui.table.Table
                     oTable.setModel(that.getView().getModel())
+
+                    let FilterGroupItem = new sap.ui.comp.filterbar.FilterGroupItem()
+
                     if (oTable.bindRows) {
                         // Bind rows to the ODataModel and add columns
                         oTable.bindAggregation("rows", {
@@ -347,19 +365,27 @@ sap.ui.define([
                                 dataReceived: function () {
                                     oDialog.update();
                                 }
-                            }
+                            },
+                            // sorter: aSort
                         });
                         vhProperty.elements.forEach(value => {
                             let uiCol = new UIColumn({
                                 label: new Label({ text: value.elementName }),
-                                template: new Text({ wrapping: false, text: `{${value.element}}` })
+                                template: new Text({
+                                    wrapping: false,
+                                    text: `{${value.element}}`
+                                }),
+                                // sorted: true,
+                                // sortOrder: "Descending"
                             })
                             // uiCol.data({
                             //     fieldName: value.element
                             // })
+
                             oTable.addColumn(uiCol)
                         })
                     }
+                    // oTable.getBindingInfo("AggregationBindingInfo").sorted('/Plant', true)
                     oDialog.update();
                 }.bind(this));
                 oDialog.open();
@@ -431,7 +457,7 @@ sap.ui.define([
 
             let vhProperty = {
                 entity: "I_GoodsMovementTypeT",
-                fragmentName: 'movementSearchHelp',
+                fragmentName: 'SearchHelp/movementSearchHelp',
                 elements: [
                     { element: "GoodsMovementType", elementName: "Movement Type" },
                     { element: "Language", elementName: "Language" },
@@ -467,9 +493,9 @@ sap.ui.define([
                         });
                         vhProperty.elements.forEach(value => {
                             let uiCol = new UIColumn({
-                                        label: new Label({ text: value.elementName }),
-                                        template: new Text({ wrapping: false, text: `{${value.element}}` })
-                                    })
+                                label: new Label({ text: value.elementName }),
+                                template: new Text({ wrapping: false, text: `{${value.element}}` })
+                            })
                             // uiCol.data({
                             //     fieldName: value.element
                             // })
@@ -542,6 +568,611 @@ sap.ui.define([
             this._oVHDMovementType.destroy();
         },
         ///---------------------- Search Help Movement Type -----------------------------------
+
+        ///-------T2--------------- Search Help GL Account -----------------------------------
+        onGLAccountValueHelp: function () {
+            let that = this
+
+            let vhProperty = {
+                entity: "I_GLAcctInChtOfAcctsStdVH",
+                fragmentName: 'SearchHelp/glaccountSearchHelp',
+                elements: [
+                    { element: "GLAccountExternal", elementName: "G/L Account External" },
+                    { element: "GLAccount", elementName: "G/L Account" },
+                    { element: "ChartOfAccounts", elementName: "Chart Of Accounts" },
+                ]
+            }
+
+            this._oBasicSearchField1 = new SearchField();
+
+            this.loadFragment({
+                name: `zmb21lsx.ext.fragment.${vhProperty.fragmentName}`,
+            }).then(function (oDialog) {
+                var oFilterBar = oDialog.getFilterBar()
+                this._oVHDGLAccount = oDialog
+
+                this.getView().addDependent(oDialog);
+                oFilterBar.setFilterBarExpanded(true);
+                oDialog.getTableAsync().then(function (oTable) {
+                    let aFilters = []
+                    // For Desktop and tabled the default table is sap.ui.table.Table
+                    oTable.setModel(that.getView().getModel())
+                    if (oTable.bindRows) {
+                        // Bind rows to the ODataModel and add columns
+                        oTable.bindAggregation("rows", {
+                            path: `/${vhProperty.entity}`,
+                            filters: aFilters,
+                            events: {
+                                dataReceived: function () {
+                                    oDialog.update();
+                                }
+                            }
+                        });
+                        vhProperty.elements.forEach(value => {
+                            let uiCol = new UIColumn({
+                                label: new Label({ text: value.elementName }),
+                                template: new Text({ wrapping: false, text: `{${value.element}}` })
+                            })
+                            // uiCol.data({
+                            //     fieldName: value.element
+                            // })
+                            oTable.addColumn(uiCol)
+                        })
+                    }
+                    oDialog.update();
+                }.bind(this));
+                oDialog.open();
+            }.bind(this));
+
+        },
+
+        _filterTableGLAccount: function (oFilter) {
+            var oVHDGLAccount = this._oVHDGLAccount;
+
+            this._oVHDGLAccount.getTableAsync().then(function (oTable) {
+                if (oTable.bindRows) {
+                    oTable.getBinding("rows").filter(oFilter);
+                }
+                if (oTable.bindItems) {
+                    oTable.getBinding("items").filter(oFilter);
+                }
+
+                oVHDGLAccount.update();
+            });
+        },
+
+        onFilterBarSearchGLAccount: function (oEvent) {
+            var aSelectionSet = oEvent.getParameter("selectionSet");
+            var aFilters = aSelectionSet.reduce(function (aResult, oControl) {
+                if (oControl.getValue()) {
+                    aResult.push(new Filter({
+                        path: oControl.getName(),
+                        operator: FilterOperator.Contains,
+                        value1: oControl.getValue()
+                    }));
+                }
+                return aResult;
+            }, []);
+
+            this._filterTableGLAccount(new Filter({
+                filters: aFilters,
+                and: true
+            }));
+        },
+
+        onValueHelpOkPressGLAccount: function (oEvent) {
+            let header = this.reviewFormReservation.getModel("selectedItem").oData.header
+            let arrItem = this.reviewFormReservation.getModel("selectedItem").oData.items
+            var aTokens = oEvent.getParameter("tokens");
+            aTokens.forEach(token => {
+                header.GLAccount = token.getKey()
+            })
+            // update Model For Fragment reviewFormReservation
+            var oModel = new sap.ui.model.json.JSONModel();
+            oModel.setData({ header: header, items: arrItem });
+            this._oVHDGLAccount.close()
+            this.reviewFormReservation.setModel(oModel, "selectedItem")
+        },
+
+        onValueHelpCancelPressGLAccount: function () {
+            this._oVHDGLAccount.close();
+        },
+        onValueHelpAfterCloseGLAccount: function () {
+            this._oVHDGLAccount.destroy();
+        },
+        ///---------------------- Search Help GL Account -----------------------------------
+
+
+        ///-------T2--------------- Search Help Cost Center -----------------------------------
+        onCostCenterValueHelp: async function () {
+            let that = this
+
+            let vhProperty = {
+                entity: "I_CostCenterText",
+                fragmentName: 'SearchHelp/costcenterSearchHelp',
+                elements: [
+                    { element: "CostCenter", elementName: "Cost Center" },
+                    { element: "ValidityStartDate", elementName: "Valid To" },
+                    { element: "ValidityEndDate", elementName: "Valid From" },
+                    { element: "CostCenterName", elementName: "Cost Center Name" },
+                ]
+            }
+
+            this._oBasicSearchField1 = new SearchField();
+
+            this.loadFragment({
+                name: `zmb21lsx.ext.fragment.${vhProperty.fragmentName}`,
+            }).then(function (oDialog) {
+                var oFilterBar = oDialog.getFilterBar()
+                this._oVHDCostCenter = oDialog
+
+                this.getView().addDependent(oDialog);
+                oFilterBar.setFilterBarExpanded(true);
+                oDialog.getTableAsync().then(function (oTable) {
+                    let aFilters = []
+                    // For Desktop and tabled the default table is sap.ui.table.Table
+                    oTable.setModel(that.getView().getModel())
+                    if (oTable.bindRows) {
+                        // Bind rows to the ODataModel and add columns
+                        oTable.bindAggregation("rows", {
+                            path: `/${vhProperty.entity}`,
+                            filters: aFilters,
+                            events: {
+                                dataReceived: function () {
+                                    oDialog.update();
+                                }
+                            }
+                        });
+                        vhProperty.elements.forEach(value => {
+                            let uiCol = new UIColumn({
+                                label: new Label({ text: value.elementName }),
+                                template: new Text({ wrapping: false, text: `{${value.element}}` })
+                            })
+                            // uiCol.data({
+                            //     fieldName: value.element
+                            // })
+                            oTable.addColumn(uiCol)
+                        })
+                    }
+                    oDialog.update();
+                }.bind(this));
+                oDialog.open();
+            }.bind(this));
+
+            // await CostCenter.onFilterBarSearchCostCenter(that)
+            // await CostCenter.onValueHelpOkPressCostCenter(that)
+            // await CostCenter.onValueHelpCancelPressCostCenter(that)
+            // await CostCenter.onValueHelpAfterCloseCostCenter(that)
+        },
+
+        _filterTableCostCenter: function (oFilter) {
+            var oVHDCostCenter = this._oVHDCostCenter;
+
+            this._oVHDCostCenter.getTableAsync().then(function (oTable) {
+                if (oTable.bindRows) {
+                    oTable.getBinding("rows").filter(oFilter);
+                }
+                if (oTable.bindItems) {
+                    oTable.getBinding("items").filter(oFilter);
+                }
+
+                oVHDCostCenter.update();
+            });
+        },
+
+        onFilterBarSearchCostCenter: function (oEvent) {
+            var aSelectionSet = oEvent.getParameter("selectionSet");
+            var aFilters = aSelectionSet.reduce(function (aResult, oControl) {
+                if (oControl.getValue()) {
+                    aResult.push(new Filter({
+                        path: oControl.getName(),
+                        operator: FilterOperator.Contains,
+                        value1: oControl.getValue()
+                    }));
+                }
+                return aResult;
+            }, []);
+
+            this._filterTableCostCenter(new Filter({
+                filters: aFilters,
+                and: true
+            }));
+        },
+
+        onValueHelpOkPressCostCenter: function (oEvent) {
+            let header = this.reviewFormReservation.getModel("selectedItem").oData.header
+            let arrItem = this.reviewFormReservation.getModel("selectedItem").oData.items
+            var aTokens = oEvent.getParameter("tokens");
+            aTokens.forEach(token => {
+                header.CostCenter = token.getKey()
+            })
+            // update Model For Fragment reviewFormReservation
+            var oModel = new sap.ui.model.json.JSONModel();
+            oModel.setData({ header: header, items: arrItem });
+            this._oVHDCostCenter.close()
+            this.reviewFormReservation.setModel(oModel, "selectedItem")
+        },
+
+        onValueHelpCancelPressCostCenter: function () {
+            this._oVHDCostCenter.close();
+        },
+        onValueHelpAfterCloseCostCenter: function () {
+            this._oVHDCostCenter.destroy();
+        },
+        ///---------------------- Search Help Cost Center -----------------------------------
+
+
+        ///-------T2--------------- Search Help Asset -----------------------------------
+        onAssetValueHelp: function () {
+            let that = this
+
+            let vhProperty = {
+                entity: "ZSH_I_FIXEDASSET",
+                fragmentName: 'SearchHelp/assetSearchHelp',
+                elements: [
+                    { element: "CompanyCode", elementName: "Company Code" },
+                    { element: "MasterFixedAsset", elementName: "Master Fixed Asset" },
+                    { element: "FixedAssetExternalID", elementName: "Fixed Asset External ID" },
+                ]
+            }
+
+            this._oBasicSearchField1 = new SearchField();
+
+            this.loadFragment({
+                name: `zmb21lsx.ext.fragment.${vhProperty.fragmentName}`,
+            }).then(function (oDialog) {
+                var oFilterBar = oDialog.getFilterBar()
+                this._oVHDAsset = oDialog
+
+                this.getView().addDependent(oDialog);
+                oFilterBar.setFilterBarExpanded(true);
+                oDialog.getTableAsync().then(function (oTable) {
+                    let aFilters = []
+                    // For Desktop and tabled the default table is sap.ui.table.Table
+                    oTable.setModel(that.getView().getModel())
+                    if (oTable.bindRows) {
+                        // Bind rows to the ODataModel and add columns
+                        oTable.bindAggregation("rows", {
+                            path: `/${vhProperty.entity}`,
+                            filters: aFilters,
+                            events: {
+                                dataReceived: function () {
+                                    oDialog.update();
+                                }
+                            }
+                        });
+                        vhProperty.elements.forEach(value => {
+                            let uiCol = new UIColumn({
+                                label: new Label({ text: value.elementName }),
+                                template: new Text({ wrapping: false, text: `{${value.element}}` })
+                            })
+                            // uiCol.data({
+                            //     fieldName: value.element
+                            // })
+                            oTable.addColumn(uiCol)
+                        })
+                    }
+                    oDialog.update();
+                }.bind(this));
+                oDialog.open();
+            }.bind(this));
+
+        },
+
+        _filterTableAsset: function (oFilter) {
+            var oVHDAsset = this._oVHDAsset;
+
+            this._oVHDAsset.getTableAsync().then(function (oTable) {
+                if (oTable.bindRows) {
+                    oTable.getBinding("rows").filter(oFilter);
+                }
+                if (oTable.bindItems) {
+                    oTable.getBinding("items").filter(oFilter);
+                }
+
+                oVHDAsset.update();
+            });
+        },
+
+        onFilterBarSearchAsset: function (oEvent) {
+            var aSelectionSet = oEvent.getParameter("selectionSet");
+            var aFilters = aSelectionSet.reduce(function (aResult, oControl) {
+                if (oControl.getValue()) {
+                    aResult.push(new Filter({
+                        path: oControl.getName(),
+                        operator: FilterOperator.Contains,
+                        value1: oControl.getValue()
+                    }));
+                }
+                return aResult;
+            }, []);
+
+            this._filterTableAsset(new Filter({
+                filters: aFilters,
+                and: true
+            }));
+        },
+
+        onValueHelpOkPressAsset: function (oEvent) {
+            let header = this.reviewFormReservation.getModel("selectedItem").oData.header
+            let arrItem = this.reviewFormReservation.getModel("selectedItem").oData.items
+            var aTokens = oEvent.getParameter("tokens");
+            aTokens.forEach(token => {
+                header.Asset = token.getKey()
+            })
+            // update Model For Fragment reviewFormReservation
+            var oModel = new sap.ui.model.json.JSONModel();
+            oModel.setData({ header: header, items: arrItem });
+            this._oVHDAsset.close()
+            this.reviewFormReservation.setModel(oModel, "selectedItem")
+        },
+
+        onValueHelpCancelPressAsset: function () {
+            this._oVHDAsset.close();
+        },
+        onValueHelpAfterCloseAsset: function () {
+            this._oVHDAsset.destroy();
+        },
+        ///---------------------- Search Help Asset -----------------------------------
+
+        ///-------T2--------------- Search Help Person -----------------------------------
+        onPersonValueHelp: function () {
+            let that = this
+
+            let vhProperty = {
+                entity: "I_BusinessPartnerVH",
+                fragmentName: 'SearchHelp/personSearchHelp',
+                elements: [
+                    { element: "BusinessPartner", elementName: "Business Partner" },
+                    { element: "BusinessPartnerName", elementName: "Business Partner Name" },
+                ]
+            }
+
+            this._oBasicSearchField1 = new SearchField();
+
+            this.loadFragment({
+                name: `zmb21lsx.ext.fragment.${vhProperty.fragmentName}`,
+            }).then(function (oDialog) {
+                var oFilterBar = oDialog.getFilterBar()
+                this._oVHDPerson = oDialog
+
+                this.getView().addDependent(oDialog);
+                oFilterBar.setFilterBarExpanded(true);
+                oDialog.getTableAsync().then(function (oTable) {
+                    let aFilters = []
+                    // For Desktop and tabled the default table is sap.ui.table.Table
+                    oTable.setModel(that.getView().getModel())
+                    if (oTable.bindRows) {
+                        // Bind rows to the ODataModel and add columns
+                        oTable.bindAggregation("rows", {
+                            path: `/${vhProperty.entity}`,
+                            filters: aFilters,
+                            events: {
+                                dataReceived: function () {
+                                    oDialog.update();
+                                }
+                            }
+                        });
+                        vhProperty.elements.forEach(value => {
+                            let uiCol = new UIColumn({
+                                label: new Label({ text: value.elementName }),
+                                template: new Text({ wrapping: false, text: `{${value.element}}` })
+                            })
+                            // uiCol.data({
+                            //     fieldName: value.element
+                            // })
+                            oTable.addColumn(uiCol)
+                        })
+                    }
+                    oDialog.update();
+                }.bind(this));
+                oDialog.open();
+            }.bind(this));
+
+        },
+
+        _filterTablePerson: function (oFilter) {
+            var oVHDPerson = this._oVHDPerson;
+
+            this._oVHDPerson.getTableAsync().then(function (oTable) {
+                if (oTable.bindRows) {
+                    oTable.getBinding("rows").filter(oFilter);
+                }
+                if (oTable.bindItems) {
+                    oTable.getBinding("items").filter(oFilter);
+                }
+
+                oVHDPerson.update();
+            });
+        },
+
+        onFilterBarSearchPerson: function (oEvent) {
+            var aSelectionSet = oEvent.getParameter("selectionSet");
+            var aFilters = aSelectionSet.reduce(function (aResult, oControl) {
+                if (oControl.getValue()) {
+                    aResult.push(new Filter({
+                        path: oControl.getName(),
+                        operator: FilterOperator.Contains,
+                        value1: oControl.getValue()
+                    }));
+                }
+                return aResult;
+            }, []);
+
+            this._filterTablePerson(new Filter({
+                filters: aFilters,
+                and: true
+            }));
+        },
+
+        onValueHelpOkPressPerson: function (oEvent) {
+            let header = this.reviewFormReservation.getModel("selectedItem").oData.header
+            let arrItem = this.reviewFormReservation.getModel("selectedItem").oData.items
+            var aTokens = oEvent.getParameter("tokens");
+            aTokens.forEach(token => {
+                header.Person = token.getKey()
+            })
+            // update Model For Fragment reviewFormReservation
+            var oModel = new sap.ui.model.json.JSONModel();
+            oModel.setData({ header: header, items: arrItem });
+            this._oVHDPerson.close()
+            this.reviewFormReservation.setModel(oModel, "selectedItem")
+        },
+
+        onValueHelpCancelPressPerson: function () {
+            this._oVHDPerson.close();
+        },
+        onValueHelpAfterClosePerson: function () {
+            this._oVHDPerson.destroy();
+        },
+        ///---------------------- Search Help Person -----------------------------------
+
+
+        ///---------T2------------- Search Help Sloc -----------------------------------
+        onIssueSlocValueHelp: function (oEvent) {
+            let arr = oEvent.getSource().getId().split("--")
+            let arrChild = arr[1].split("-")
+            let index
+            if(arrChild.length >= 2) {
+                index = oEvent.getSource().getParent().getIndex()
+            }
+            let dataSearchHelp = {
+                nameField: arrChild[0],
+                itemTable: index
+            }
+            // localStorage.setItem("lineIssueSlocSH", dataSearchHelp);
+            localStorage.setItem("searchHelp", dataSearchHelp);
+            localStorage.removeItem("lineIssueSlocSH")
+
+            let that = this
+
+            let vhProperty = {
+                entity: "I_StorageLocationStdVH",
+                fragmentName: 'SearchHelp/issueSlocSearchHelp',
+                elements: [
+                    { element: "Plant", elementName: "Plant" },
+                    { element: "StorageLocation", elementName: "StorageLocation" },
+                    { element: "StorageLocationName", elementName: "StorageLocation Name" }
+                ]
+            }
+
+            // this._currentNodeVH = oEvent.getSource().getParent().getParent().getRowBindingContext().getObject()
+            this._oBasicSearchField = new SearchField();
+
+            this.loadFragment({
+                name: `zmb21lsx.ext.fragment.${vhProperty.fragmentName}`,
+            }).then(function (oDialog) {
+                var oFilterBar = oDialog.getFilterBar()
+                this._oVHDIssueSloc = oDialog
+
+                this.getView().addDependent(oDialog);
+                oFilterBar.setFilterBarExpanded(true);
+                oDialog.getTableAsync().then(function (oTable) {
+                    let aFilters = []
+                    // aFilters.push( new Filter("Language", "EQ",'EN') )
+                    let aSort = new Sorter("Plant", true)
+                    // For Desktop and tabled the default table is sap.ui.table.Table
+                    oTable.setModel(that.getView().getModel())
+
+                    let FilterGroupItem = new sap.ui.comp.filterbar.FilterGroupItem()
+
+                    if (oTable.bindRows) {
+                        // Bind rows to the ODataModel and add columns
+                        oTable.bindAggregation("rows", {
+                            path: `/${vhProperty.entity}`,
+                            filters: aFilters,
+                            events: {
+                                dataReceived: function () {
+                                    oDialog.update();
+                                }
+                            },
+                            // sorter: aSort
+                        });
+                        vhProperty.elements.forEach(value => {
+                            let uiCol = new UIColumn({
+                                label: new Label({ text: value.elementName }),
+                                template: new Text({
+                                    wrapping: false,
+                                    text: `{${value.element}}`
+                                }),
+                                // sorted: true,
+                                // sortOrder: "Descending"
+                            })
+                            // uiCol.data({
+                            //     fieldName: value.element
+                            // })
+
+                            oTable.addColumn(uiCol)
+                        })
+                    }
+                    // oTable.getBindingInfo("AggregationBindingInfo").sorted('/Plant', true)
+                    oDialog.update();
+                }.bind(this));
+                oDialog.open();
+            }.bind(this));
+        },
+
+        _filterTableIssueSloc: function (oFilter) {
+            var oVHDIssueSloc = this._oVHDIssueSloc;
+
+            oVHDIssueSloc.getTableAsync().then(function (oTable) {
+                if (oTable.bindRows) {
+                    oTable.getBinding("rows").filter(oFilter);
+                }
+                if (oTable.bindItems) {
+                    oTable.getBinding("items").filter(oFilter);
+                }
+
+                oVHDIssueSloc.update();
+            });
+        },
+
+        onFilterBarSearchIssueSloc: function (oEvent) {
+            var aSelectionSet = oEvent.getParameter("selectionSet");
+            var aFilters = aSelectionSet.reduce(function (aResult, oControl) {
+                if (oControl.getValue()) {
+                    aResult.push(new Filter({
+                        path: oControl.getName(),
+                        operator: FilterOperator.Contains,
+                        value1: oControl.getValue()
+                    }));
+                }
+                return aResult;
+            }, []);
+
+            this._filterTableIssueSloc(new Filter({
+                filters: aFilters,
+                and: true
+            }));
+        },
+
+        onValueHelpOkPressIssueSloc: function (oEvent) {
+
+            // this.onChangeIssueSloc()
+
+            let header = this.reviewFormReservation.getModel("selectedItem").oData.header
+            let arrItem = this.reviewFormReservation.getModel("selectedItem").oData.items
+            var aTokens = oEvent.getParameter("tokens");
+            aTokens.forEach(token => {
+                header.ReceivingSloc = token.getKey()
+            })
+            // update Model For Fragment reviewFormReservation
+            var oModel = new sap.ui.model.json.JSONModel();
+            oModel.setData({ header: header, items: arrItem });
+            this._oVHDIssueSloc.close()
+            this.reviewFormReservation.setModel(oModel, "selectedItem")
+            this.onChangeReceivingSloc()
+        },
+
+        onValueHelpCancelPressIssueSloc: function () {
+            this._oVHDIssueSloc.close();
+        },
+        onValueHelpAfterCloseIssueSloc: function () {
+            this._oVHDIssueSloc.destroy();
+        },
+
+        ///---------------------- Search Help Sloc -----------------------------------
+
 
 
         _closeDialog: function () {

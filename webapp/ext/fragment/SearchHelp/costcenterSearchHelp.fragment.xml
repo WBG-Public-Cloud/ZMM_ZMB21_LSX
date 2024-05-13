@@ -1,0 +1,57 @@
+<core:FragmentDefinition
+	xmlns="sap.ui.comp.valuehelpdialog"
+	xmlns:m="sap.m"
+	xmlns:fb="sap.ui.comp.filterbar"
+	xmlns:core="sap.ui.core">
+	<ValueHelpDialog
+	    id   ="SearchHelpCostCenter"
+		title="Cost Center"
+		ok=".onValueHelpOkPressCostCenter"
+		cancel=".onValueHelpCancelPressCostCenter"
+		afterClose=".onValueHelpAfterCloseCostCenter"
+		key="CostCenter"
+		supportMultiselect="false">
+		<filterBar>
+			<fb:FilterBar advancedMode="true" search=".onFilterBarSearchCostCenter" isRunningInValueHelpDialog="true" >
+				<fb:filterGroupItems>
+					<fb:FilterGroupItem
+						groupName="__$INTERNAL$"
+						name="CostCenter"
+						label="Cost Center"
+						visibleInFilterBar="true">
+						<fb:control>
+							<m:Input name="CostCenter" />
+						</fb:control>
+					</fb:FilterGroupItem>                
+					<fb:FilterGroupItem
+						groupName="__$INTERNAL$"
+						name="ValidityStartDate"
+						label="Valid To"
+						visibleInFilterBar="true">
+						<fb:control>
+							<m:Input name="ValidityStartDate" />
+						</fb:control>
+					</fb:FilterGroupItem>
+					<fb:FilterGroupItem
+						groupName="__$INTERNAL$"
+						name="ValidityEndDate"
+						label="Valid From"
+						visibleInFilterBar="true">
+						<fb:control>
+							<m:Input name="ValidityEndDate" />
+						</fb:control>
+					</fb:FilterGroupItem>
+					<fb:FilterGroupItem
+						groupName="__$INTERNAL$"
+						name="CostCenterName"
+						label="Cost Center Name"
+						visibleInFilterBar="true">
+						<fb:control>
+							<m:Input name="CostCenterName" />
+						</fb:control>
+					</fb:FilterGroupItem>
+				</fb:filterGroupItems>
+			</fb:FilterBar>
+		</filterBar>
+	</ValueHelpDialog>
+</core:FragmentDefinition>

@@ -1,0 +1,39 @@
+<core:FragmentDefinition
+	xmlns="sap.ui.comp.valuehelpdialog"
+	xmlns:m="sap.m"
+	xmlns:fb="sap.ui.comp.filterbar"
+	xmlns:core="sap.ui.core">
+	<ValueHelpDialog
+	    id   ="SearchHelpPerson"
+		title="Person"
+		ok=".onValueHelpOkPressPerson"
+		cancel=".onValueHelpCancelPressPerson"
+		afterClose=".onValueHelpAfterClosePerson"
+		key="BusinessPartner"
+		supportMultiselect="false">
+		<filterBar>
+			<fb:FilterBar advancedMode="true" search=".onFilterBarSearchPerson" isRunningInValueHelpDialog="true" >
+				<fb:filterGroupItems>
+					<fb:FilterGroupItem
+						groupName="__$INTERNAL$"
+						name="BusinessPartner"
+						label="Business Partner"
+						visibleInFilterBar="true">
+						<fb:control>
+							<m:Input name="BusinessPartner" />
+						</fb:control>
+					</fb:FilterGroupItem>                
+					<fb:FilterGroupItem
+						groupName="__$INTERNAL$"
+						name="BusinessPartnerName"
+						label="Business Partner Name"
+						visibleInFilterBar="true">
+						<fb:control>
+							<m:Input name="BusinessPartnerName" />
+						</fb:control>
+					</fb:FilterGroupItem>
+				</fb:filterGroupItems>
+			</fb:FilterBar>
+		</filterBar>
+	</ValueHelpDialog>
+</core:FragmentDefinition>
