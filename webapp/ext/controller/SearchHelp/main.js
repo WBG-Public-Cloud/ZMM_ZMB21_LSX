@@ -39,19 +39,27 @@ sap.ui.define([
             that.loadFragment({
                 name: `zmb21lsx.ext.fragment.${vhProperty.fragmentName}`,
             }).then(function (oDialog) {
-                var oFilterBar = oDialog.getFilterBar()
+                ////------------nghien cuu----------------
 
+                var oModel = new sap.ui.model.json.JSONModel();
+                oModel.setData({header: vhProperty.fieldSearch});
                 that._oVHD = oDialog
+                that._oVHD.setModel(oModel, "fieldSearch")
+
+                // var oModel1 = new sap.ui.model.json.JSONModel();
+                // oModel1.setData({header: vhProperty.keySearch});
+                // that._oVHD = oDialog
+                // that._oVHD.setModel(oModel1, "keySearch")
+
+
+                ////
+
+
+                var oFilterBar = oDialog.getFilterBar()
+                // that._oVHD = oDialog
 
                 that.getView().addDependent(oDialog);
                 oFilterBar.setFilterBarExpanded(true);
-
-                /////------------nghien cuu----------------
-
-                // let control = new sap.ui.core.Control()
-                // let oFilterGroupItem = new sap.ui.comp.filterbar.FilterGroupItem(control)
-                // oFilterBar.addFilterGroupItem(oFilterGroupItem)
-                /////----------------------------
 
 
                 oDialog.getTableAsync().then(function (oTable) {
@@ -121,7 +129,9 @@ sap.ui.define([
 
         onFilterBarSearch: function (oEvent, that) {
             var aSelectionSet = oEvent.getParameter("selectionSet");
+            console.log(aSelectionSet)
             var aFilters = aSelectionSet.reduce(function (aResult, oControl) {
+                console.log(oControl)
                 if (oControl.getValue()) {
                     aResult.push(new Filter({
                         path: oControl.getName(),

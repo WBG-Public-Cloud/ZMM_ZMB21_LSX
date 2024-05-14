@@ -216,14 +216,27 @@ sap.ui.define([
 
         //------ Search Help Receiving Sloc --------
         onReceivingSlocValueHelp: async function (oEvent) {
+            let that = this
             let vhProperty = {
                 entity: "I_StorageLocationStdVH",
-                fragmentName: 'SearchHelp/slocSearchHelp',
+                fragmentName: 'SearchHelp/SearchHelp',
                 elements: [
                     { element: "Plant", elementName: "Plant" },
                     { element: "StorageLocation", elementName: "StorageLocation" },
                     { element: "StorageLocationName", elementName: "StorageLocation Name" }
+                ],
+                fieldSearch: {
+                    key: "StorageLocation",
+                    items: [
+                        {name: "StorageLocation", label: "Storage Location"},
+                        {name: "Plant", label: "Plant"},
+                    ]
+                },
+                keySearch: [
+                    "StorageLocation",
+                    "Plant"
                 ]
+
             }
 
             await SearchHelp.onFragmentValueHelp(oEvent, this, vhProperty)
