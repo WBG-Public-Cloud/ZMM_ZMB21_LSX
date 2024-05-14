@@ -20,7 +20,7 @@
 						label="{fieldSearch>label}"
 						visibleInFilterBar="true">
 						<fb:control>
-							<m:Input value="{keySearch>header}"/>
+							<m:Input value="{fieldSearch>/header/key}"/>
 						</fb:control>
 					</fb:FilterGroupItem>               
 				</fb:filterGroupItems>
