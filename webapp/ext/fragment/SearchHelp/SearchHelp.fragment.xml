@@ -18,9 +18,10 @@
 						groupName="__$INTERNAL$"
 						name="{fieldSearch>name}"
 						label="{fieldSearch>label}"
-						visibleInFilterBar="true">
+						visibleInFilterBar="true"
+						control="{fieldSearch>arrnameInput}">
 						<fb:control>
-							<m:Input value="{fieldSearch>/header/key}"/>
+							<m:Input change="onSearchhelp" name="123"/>
 						</fb:control>
 					</fb:FilterGroupItem>               
 				</fb:filterGroupItems>

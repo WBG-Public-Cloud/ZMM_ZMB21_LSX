@@ -1,0 +1,12 @@
+<mvc:View
+	controllerName="sap.ui.richtexteditor.sample.RichTextEditor.controller.RichTextEditor"
+	xmlns="sap.m"
+	xmlns:l="sap.ui.layout"
+	xmlns:core="sap.ui.core"
+	xmlns:mvc="sap.ui.core.mvc">
+	<l:VerticalLayout id="idVerticalLayout" class="sapUiContentPadding" width="100%">
+		<HBox alignItems="Center">
+			<Label text="Select TinyMCE version:" labelFor="idSelect" class="sapUiSmallMarginEnd"/>
+		</HBox>
+	</l:VerticalLayout>
+</mvc:View>

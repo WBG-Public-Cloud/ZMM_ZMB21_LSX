@@ -6,13 +6,13 @@
 	<ValueHelpDialog
 	    id   ="SearchHelpPerson"
 		title="Person"
-		ok=".onValueHelpOkPressPerson"
-		cancel=".onValueHelpCancelPressPerson"
-		afterClose=".onValueHelpAfterClosePerson"
+		ok=".onValueHelpOkPress"
+		cancel=".onValueHelpCancelPress"
+		afterClose=".onValueHelpAfterClose"
 		key="BusinessPartner"
 		supportMultiselect="false">
 		<filterBar>
-			<fb:FilterBar advancedMode="true" search=".onFilterBarSearchPerson" isRunningInValueHelpDialog="true" >
+			<fb:FilterBar advancedMode="true" search=".onFilterBarSearch" isRunningInValueHelpDialog="true" >
 				<fb:filterGroupItems>
 					<fb:FilterGroupItem
 						groupName="__$INTERNAL$"

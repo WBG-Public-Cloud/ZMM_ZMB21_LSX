@@ -46,12 +46,6 @@ sap.ui.define([
                 that._oVHD = oDialog
                 that._oVHD.setModel(oModel, "fieldSearch")
 
-                // var oModel1 = new sap.ui.model.json.JSONModel();
-                // oModel1.setData({header: vhProperty.keySearch});
-                // that._oVHD = oDialog
-                // that._oVHD.setModel(oModel1, "keySearch")
-
-
                 ////
 
 
@@ -128,8 +122,9 @@ sap.ui.define([
         // },
 
         onFilterBarSearch: function (oEvent, that) {
+            console.log("oEvent", oEvent)
             var aSelectionSet = oEvent.getParameter("selectionSet");
-            console.log(aSelectionSet)
+            console.log("aSelectionSet", aSelectionSet)
             var aFilters = aSelectionSet.reduce(function (aResult, oControl) {
                 console.log(oControl)
                 if (oControl.getValue()) {
@@ -154,8 +149,10 @@ sap.ui.define([
             let arrItem = that.reviewFormReservation.getModel("selectedItem").oData.items
             var aTokens = oEvent.getParameter("tokens");
             aTokens.forEach(token => {
-                if (dataSearchHelp.itemTable) {
-                    //change line table
+                if (dataSearchHelp.itemTable || dataSearchHelp.itemTable == 0) {
+                    if (dataSearchHelp.nameField == 'IssueSloc') {
+                        arrItem[`${dataSearchHelp.itemTable}`][`${dataSearchHelp.nameField}`] = token.getKey()
+                    }
                 } else {
                     if (dataSearchHelp.nameField == 'ReceivingSloc') {
                         // header.ReceivingSloc = token.getKey()

@@ -18,27 +18,31 @@ sap.ui.define([
 
     return {
         ///------------T2---------- Change Long Text -----------------------------------
-        onChangeLongText: function (oEvent, that) {
-            // console.log("value", oEvent.getSource().getValue())
-            // // console.log(oEvent.getSource().getParent().getMetadata().getElementName())
-            // console.log("Index", oEvent.getSource().getParent().getIndex())
-            // console.log(oEvent)
-            // console.log(this.reviewFormReservation.getModel("selectedItem").oData.items)
+        onChangeNote: function (that, sText) {
+            // //Handling String HTML 
+            // function getInnerTextFromHTMLString(htmlString) {
+            //     var parser = new DOMParser();
+            //     var doc = parser.parseFromString(htmlString, 'text/html');
+            //     return doc.body.textContent || "";
+            //   }
+              
+            //   // Ví dụ sử dụng
+            //   var innerText = getInnerTextFromHTMLString(sText);
 
+
+            // let that = this
+            let header = that.reviewFormReservation.getModel("selectedItem").oData.header
             let arrItem = that.reviewFormReservation.getModel("selectedItem").oData.items
-            let itemChange = arrItem[oEvent.getSource().getParent().getIndex()]
-
-            arrItem.forEach(item => {
-                if ((item.Order === itemChange.Order) && (item.IssueSloc === itemChange.IssueSloc)) { // "&& (item.IssueSloc === itemChange.IssueSloc) && (item.Component === itemChange.Component) ) {
-                    item.LongText = itemChange.LongText
-                }
-            })
+            // let index = localStorage.getItem("itemLongText")
+            // arrItem[index].LongText = sText
+            header.Note = sText
 
             // update Model For Fragment reviewFormReservation
             var oModel = new sap.ui.model.json.JSONModel();
-            oModel.setData({ header: that.reviewFormReservation.getModel("selectedItem").oData.header, items: arrItem });
+            oModel.setData({ header: header, items: arrItem });
             that.reviewFormReservation.setModel(oModel, "selectedItem")
 
+            that.TextEditorDialog.close()
         },
 
         ///------------T2---------- Change Storage Location -----------------------------------
@@ -48,7 +52,7 @@ sap.ui.define([
             let arrItem = that.reviewFormReservation.getModel("selectedItem").oData.items
             let index = oEvent.getSource().getParent().getIndex()
             let issueSloc = oEvent.getSource().getValue()
-            let model = that.getView().getModel()
+            let model = that.getView().getModel()  ///MCV
             let path = `/ZMM_I_SUM_MATERIAL_STOCK1(Plant='${arrItem[index].Plant}',Material='${arrItem[index].Component}',StorageLocation='${issueSloc}')`
 
             that.openBusyDialog()
@@ -138,5 +142,6 @@ sap.ui.define([
                 }
             });
         },
+
     }
 })

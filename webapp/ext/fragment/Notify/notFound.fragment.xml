@@ -1,0 +1,28 @@
+<mvc:View
+	controllerName="sap.ui.webc.fiori.sample.IllustratedMessage.C"
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core"
+	xmlns:main="sap.ui.webc.main"
+	xmlns:fiori="sap.ui.webc.fiori"
+	xmlns:mvc="sap.ui.core.mvc"
+>
+	<fiori:Page>
+		<fiori:header>
+			<fiori:Bar>
+				<fiori:middleContent>
+					<Title text="IllustratedMessage"></Title>
+				</fiori:middleContent>
+			</fiori:Bar>
+		</fiori:header>
+
+		<fiori:content>
+			<fiori:IllustratedMessage name="PageNotFound" subtitleText="Sample Description" titleText="Sample Title">
+				<fiori:actions>
+					<main:Button icon="employee" text="Action Button" class="sapUiSmallMarginEnd" />
+					<main:Button icon="employee" text="Action Button" />
+				</fiori:actions>
+			</fiori:IllustratedMessage>
+		</fiori:content>
+	</fiori:Page>
+
+</mvc:View>

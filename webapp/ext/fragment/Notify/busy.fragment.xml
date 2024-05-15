@@ -4,6 +4,6 @@
 >
         <BusyDialog id="busyFragment"
             title="Processing"
-            text="Đang xử lý "
+            text="Processing "
             close="onBusyDialogClosed" />
 </c:FragmentDefinition>

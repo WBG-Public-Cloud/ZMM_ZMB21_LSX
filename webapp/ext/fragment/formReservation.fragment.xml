@@ -1,6 +1,6 @@
 <c:FragmentDefinition  
 controllerName="sap.ui.comp.sample.smartfield.SmartFieldWithValueHelp.Main"
-xmlns="sap.ui.table" 
+xmlns="sap.ui.table"
 xmlns:mvc="sap.ui.core.mvc" 
 xmlns:u="sap.ui.unified" 
 xmlns:c="sap.ui.core" 
@@ -20,14 +20,14 @@ xmlns:l="sap.ui.layout">
 
                     <m:Label text="Base Date"/>
                     <!-- <m:Input id="BaseDate" value='{selectedItem>/header/BaseDate}' required="true" type="Text"/> -->
-                    <m:DatePicker id="DP1" 
-                    value="{
-						'path':'selectedItem>/header/BaseDate',
-						'type':'sap.ui.model.type.Date'
-					}"
-                    placeholder="Base Date" 
-                    class="sapUiSmallMarginBottom" 
-                    required="true"/>
+                    <m:DatePicker   id="DP1" 
+                                    value="{
+                                        'path':'selectedItem>/header/BaseDate',
+                                        'type':'sap.ui.model.type.Date'
+                                    }"
+                                    placeholder="Base Date" 
+                                    class="sapUiSmallMarginBottom" 
+                                    required="true"/>
 
                     <m:Label text="Cost Center"/>
                     <m:Input id="CostCenter" value='{selectedItem>/header/CostCenter}' showValueHelp="true" valueHelpRequest="onCostCenterValueHelp"/>
@@ -45,7 +45,7 @@ xmlns:l="sap.ui.layout">
                     <m:Input id="Person" value='{selectedItem>/header/Person}' showValueHelp="true" valueHelpRequest="onPersonValueHelp"/>
 
                     <m:Label text="Note"/>
-                    <m:Input id="Note" value='{selectedItem>/header/Note}'/>
+                    <m:Input id="Note" showValueHelp="true" valueHelpRequest="onNoteValueHelp" value='{selectedItem>/header/Note}'/>
 
                 </f:content>
             </f:SimpleForm>
@@ -53,18 +53,24 @@ xmlns:l="sap.ui.layout">
 
 
         <m:content>
-        	<!-- <m:Button   type="Reject"
-					    text="Reject"
-						press="onPress"
-						ariaDescribedBy="rejectButtonDescription genericButtonDescription">
-			</m:Button> -->
-
             <!-- <u:ObjectPageLayout> pro    selectionMode="None"-->
             <Table id="tableItem" rows="{selectedItem>/items}" paste="onPaste" ariaLabelledBy="title">
                 <extension>
                     <m:OverflowToolbar style="Clear">
                         <m:Title id="title" text="Reservation Items"/>
                     </m:OverflowToolbar>
+                    <m:OverflowToolbar style="Clear">
+                        <m:ToggleButton id="addItem"
+                            text="Add"
+                            press="onAddItem"
+                            enabled="true"
+                            pressed="true" />
+                        <m:ToggleButton id="RemoveItem"
+                            text="Remove"
+                            press="onRemoveItem"
+                            enabled="true"
+                            pressed="true" />
+                     </m:OverflowToolbar>
                 </extension>
                 <columns>
                     <Column width="11rem">
@@ -126,7 +132,7 @@ xmlns:l="sap.ui.layout">
                     <Column width="9rem">
                         <m:Label text="Issue Sloc"/>
                         <template>
-                            <m:Input change="onChangeIssueSloc" showValueHelp="true" valueHelpRequest="onIssueSlocValueHelp" id="IssueSloc" value="{selectedItem>IssueSloc}" />
+                            <m:Input change="onChangeIssueSloc" showValueHelp="true" valueHelpRequest="onReceivingSlocValueHelp" id="IssueSloc" value="{selectedItem>IssueSloc}" />
                         </template>
                     </Column>
                     <Column width="7rem">
