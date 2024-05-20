@@ -9,17 +9,16 @@
 		ok=".onValueHelpOkPress"
 		cancel=".onValueHelpCancelPress"
 		afterClose=".onValueHelpAfterClose"
-		key="{fieldSearch>/header/key}"
+		key="{filtertBar>/header/key}"
 		supportMultiselect="false">
 		<filterBar>
-			<fb:FilterBar id = "1" advancedMode="true" search=".onFilterBarSearch" isRunningInValueHelpDialog="true" filterGroupItems="{fieldSearch>/header/items}">
+			<fb:FilterBar id = "1" advancedMode="true" search=".onFilterBarSearch" isRunningInValueHelpDialog="true" filterGroupItems="{filtertBar>/header/items}">
 				<fb:filterGroupItems>
 					<fb:FilterGroupItem
 						groupName="__$INTERNAL$"
-						name="{fieldSearch>name}"
-						label="{fieldSearch>label}"
-						visibleInFilterBar="true"
-						control="{fieldSearch>arrnameInput}">
+						name="{filtertBar>name}"
+						label="{filtertBar>label}"
+						visibleInFilterBar="true">
 						<fb:control>
 							<m:Input change="onSearchhelp" name="123"/>
 						</fb:control>

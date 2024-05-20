@@ -29,6 +29,7 @@ sap.ui.define([
         TextEditorDialog: null,
 
         onInit: async function () {
+            localStorage.clear();
         },
 
         //-----------T0------------------- Fragment Busy Dialog ------------------------------------------
@@ -230,9 +231,9 @@ sap.ui.define([
 
         ///------------T2---------- Change Long Text -----------------------------------
         onNoteValueHelp: async function (oEvent) {
-            let index = oEvent.getSource().getParent().getIndex()
+            // let index = oEvent.getSource().getParent().getIndex()
             let value = oEvent.getSource().getValue()
-            localStorage.setItem("itemLongText", index)
+            // localStorage.setItem("itemLongText", index)
             this.openTextEditorDialog(value)
         },
 
@@ -272,7 +273,18 @@ sap.ui.define([
 
         ///------------T2---------- Change Storage Location -----------------------------------
         onChangeIssueSloc: async function (oEvent) { // Dòng item change issue sloc\
-            await Change.onChangeIssueSloc(oEvent, this)
+            let index, value;
+            // typeof oEvent.getSource().getParent().getIndex() == 'number'
+            if(typeof oEvent == 'undefined'){
+                let issueSloc = JSON.parse(localStorage.getItem("issueSloc"))
+                index = issueSloc.index
+                value = issueSloc.value
+            } else {
+                index = oEvent.getSource().getParent().getIndex()
+                value = oEvent.getSource().getValue()
+            }
+
+            await Change.onChangeIssueSloc(index, value, this)
         },
 
         ///------------T2---------- Change ReceivingSloc-----------------------------------
@@ -280,15 +292,28 @@ sap.ui.define([
             await Change.onChangeReceivingSloc(this)
         },
 
-        ///---------T2------------- Search Help Sloc -----------------------------------
 
-        //------ Search Help Receiving Sloc --------
-        onReceivingSlocValueHelp: async function (oEvent) {
+
+
+
+
+        ///---------T2------------- Search Help Sloc ----------------------------------- IssueSloc
+
+        //------ Search Help Issue Sloc --------
+        onIssueSlocValueHelp: async function (oEvent) {
+            //find index issue sloc change in table
+            let arr = oEvent.getSource().getId().split("--")
+            let arrChild = arr[1].split("-")
+            let index
+            if (arrChild.length >= 2) {
+                index = oEvent.getSource().getParent().getIndex()
+            }
+
             let Plant = this.reviewFormReservation.getModel("selectedItem").oData.items[0].Plant
 
             let vhProperty = {
                 entity: "I_StorageLocationStdVH",
-                fragmentName: 'SearchHelp/slocSearchHelp',
+                fragmentName: 'SearchHelp/SearchHelp',
                 elements: [
                     { element: "Plant", elementName: "Plant" },
                     { element: "StorageLocation", elementName: "StorageLocation" },
@@ -299,15 +324,56 @@ sap.ui.define([
                     operator: "EQ",
                     value: `${Plant}`
                 },
-                fieldSearch: {
+                filtertBar: {
                     key: "StorageLocation",
                     items: [
-                        { name: "StorageLocation", label: "Storage Location", arrnameInput: "StorageLocation" },
-                        { name: "Plant", label: "Plant", arrnameInput: [{ nameInput: "Plant" }, { nameInput: "Plant" }] },
+                        { name: "StorageLocation", label: "Storage Location"},
+                        { name: "StorageLocationName", label: "Storage Location Name" }
                     ]
+                },
+                fieldSearch: {
+                    nameField: "IssueSloc",
+                    itemTable: index
                 }
 
             }
+            let data = JSON.stringify(vhProperty)
+            localStorage.setItem("vhProperty", data);
+
+            await SearchHelp.onFragmentValueHelp(oEvent, this, vhProperty)
+        },
+
+        //------ Search Help Receiving Sloc --------
+        onReceivingSlocValueHelp: async function (oEvent) {
+            let Plant = this.reviewFormReservation.getModel("selectedItem").oData.items[0].Plant
+
+            let vhProperty = {
+                entity: "I_StorageLocationStdVH",
+                fragmentName: 'SearchHelp/SearchHelp',
+                elements: [
+                    { element: "Plant", elementName: "Plant" },
+                    { element: "StorageLocation", elementName: "StorageLocation" },
+                    { element: "StorageLocationName", elementName: "StorageLocation Name" }
+                ],
+                filter: {
+                    path: "Plant",
+                    operator: "EQ",
+                    value: `${Plant}`
+                },
+                filtertBar: {
+                    key: "StorageLocation",
+                    items: [
+                        { name: "StorageLocation", label: "Storage Location"},
+                        { name: "StorageLocationName", label: "Storage Location Name" }
+                    ]
+                },
+                fieldSearch: {
+                    nameField: "ReceivingSloc"
+                }
+
+            }
+            let data = JSON.stringify(vhProperty)
+            localStorage.setItem("vhProperty", data);
 
             await SearchHelp.onFragmentValueHelp(oEvent, this, vhProperty)
         },
@@ -316,7 +382,7 @@ sap.ui.define([
         onMovementTypeValueHelp: async function (oEvent) {
             let vhProperty = {
                 entity: "I_GoodsMovementTypeT",
-                fragmentName: 'SearchHelp/movementSearchHelp',
+                fragmentName: 'SearchHelp/SearchHelp',
                 elements: [
                     { element: "GoodsMovementType", elementName: "Movement Type" },
                     { element: "Language", elementName: "Language" },
@@ -326,8 +392,20 @@ sap.ui.define([
                     path: "Language",
                     operator: "EQ",
                     value: "EN"
+                },
+                filtertBar: {
+                    key: "GoodsMovementType",
+                    items: [
+                        { name: "GoodsMovementType", label: "Movement Type"},
+                        { name: "GoodsMovementTypeName", label: "Goods Movement TypeName" }
+                    ]
+                },
+                fieldSearch: {
+                    nameField: "MovementType"
                 }
             }
+            let data = JSON.stringify(vhProperty)
+            localStorage.setItem("vhProperty", data);
 
             await SearchHelp.onFragmentValueHelp(oEvent, this, vhProperty)
         },
@@ -336,13 +414,27 @@ sap.ui.define([
         onGLAccountValueHelp: async function (oEvent) {
             let vhProperty = {
                 entity: "I_GLAcctInChtOfAcctsStdVH",
-                fragmentName: 'SearchHelp/glaccountSearchHelp',
+                fragmentName: 'SearchHelp/SearchHelp',
                 elements: [
                     { element: "GLAccountExternal", elementName: "G/L Account External" },
                     { element: "GLAccount", elementName: "G/L Account" },
                     { element: "ChartOfAccounts", elementName: "Chart Of Accounts" },
-                ]
+                ],
+                filter:{},
+                filtertBar: {
+                    key: "GLAccount",
+                    items: [
+                        { name: "GLAccountExternal", label: "GLAccount External"},
+                        { name: "GLAccount", label: "GL Account" },
+                        { name: "ChartOfAccounts", label: "Chart Of Accounts" },
+                    ]
+                },
+                fieldSearch: {
+                    nameField: "GLAccount"
+                }
             }
+            let data = JSON.stringify(vhProperty)
+            localStorage.setItem("vhProperty", data);
 
             await SearchHelp.onFragmentValueHelp(oEvent, this, vhProperty)
         },
@@ -351,29 +443,59 @@ sap.ui.define([
         onCostCenterValueHelp: async function (oEvent) {
             let vhProperty = {
                 entity: "I_CostCenterText",
-                fragmentName: 'SearchHelp/costcenterSearchHelp',
+                fragmentName: 'SearchHelp/SearchHelp',
                 elements: [
                     { element: "CostCenter", elementName: "Cost Center" },
                     { element: "ValidityStartDate", elementName: "Valid To" },
                     { element: "ValidityEndDate", elementName: "Valid From" },
                     { element: "CostCenterName", elementName: "Cost Center Name" },
-                ]
+                ],
+                filter:{},
+                filtertBar: {
+                    key: "CostCenter",
+                    items: [
+                        { name: "CostCenter", label: "Cost Center"},
+                        // { name: "ValidityStartDate", label: "Valid To" },
+                        // { name: "ValidityEndDate", label: "Valid From" },
+                        { name: "CostCenterName", label: "Cost Center Name" },
+                    ]
+                },
+                fieldSearch: {
+                    nameField: "CostCenter"
+                }
             }
+            let data = JSON.stringify(vhProperty)
+            localStorage.setItem("vhProperty", data);
 
             await SearchHelp.onFragmentValueHelp(oEvent, this, vhProperty)
         },
 
         //------ Search Help Asset --------
         onAssetValueHelp: async function (oEvent) {
+            // let Plant = this.reviewFormReservation.getModel("selectedItem").oData.items[0].Plant
+
             let vhProperty = {
                 entity: "ZSH_I_FIXEDASSET",
-                fragmentName: 'SearchHelp/assetSearchHelp',
+                fragmentName: 'SearchHelp/SearchHelp',
                 elements: [
                     { element: "CompanyCode", elementName: "Company Code" },
                     { element: "MasterFixedAsset", elementName: "Master Fixed Asset" },
                     { element: "FixedAssetExternalID", elementName: "Fixed Asset External ID" },
-                ]
+                ],
+                filter: {},
+                filtertBar: {
+                    key: "MasterFixedAsset",
+                    items: [
+                        { name: "MasterFixedAsset", label: "Master Fixed Asset"},
+                        { name: "FixedAssetExternalID", label: "Fixed Asset External ID" },
+                    ]
+                },
+                fieldSearch: {
+                    nameField: "Asset"
+                }
             }
+            let data = JSON.stringify(vhProperty)
+            localStorage.setItem("vhProperty", data);
 
             await SearchHelp.onFragmentValueHelp(oEvent, this, vhProperty)
         },
@@ -386,29 +508,23 @@ sap.ui.define([
                 elements: [
                     { element: "BusinessPartner", elementName: "Business Partner" },
                     { element: "BusinessPartnerName", elementName: "Business Partner Name" },
-                ]
+                ],
+                filter: {},
+                filtertBar: {
+                    key: "BusinessPartner",
+                    items: [
+                        { name: "BusinessPartner", label: "Business Partner"},
+                        { name: "BusinessPartnerName", label: "Business Partner Name" },
+                    ]
+                },
+                fieldSearch: {
+                    nameField: "Person"
+                }
             }
+            let data = JSON.stringify(vhProperty)
+            localStorage.setItem("vhProperty", data);
 
             await SearchHelp.onFragmentValueHelp(oEvent, this, vhProperty)
-        },
-
-        //----- dùng chung ------------
-        _filterTable: function (oFilter) {
-            var oVHD = this._oVHD;
-            if (!oFilter.aFilters || oFilter.aFilters.length == 0) {
-                oFilter = []
-            }
-
-            oVHD.getTableAsync().then(function (oTable) {
-                if (oTable.bindRows) {
-                    oTable.getBinding("rows").filter(oFilter);
-                }
-                if (oTable.bindItems) {
-                    oTable.getBinding("items").filter(oFilter);
-                }
-
-                oVHD.update();
-            });
         },
 
         onFilterBarSearch: async function (oEvent) {
@@ -416,7 +532,41 @@ sap.ui.define([
         },
 
         onValueHelpOkPress: async function (oEvent) {
-            await SearchHelp.onValueHelpOkPress(oEvent, this)
+            // Xử lý kết quả trả về tùy theo dự án
+            let that = this
+            let vhProperty = JSON.parse(localStorage.getItem("vhProperty"))
+            let dataSearchHelp = vhProperty.fieldSearch
+            let header = that.reviewFormReservation.getModel("selectedItem").oData.header
+            let arrItem = that.reviewFormReservation.getModel("selectedItem").oData.items
+            var aTokens = oEvent.getParameter("tokens");
+            aTokens.forEach(token => {
+                if (dataSearchHelp.itemTable || dataSearchHelp.itemTable == 0) {
+                    if (dataSearchHelp.nameField == 'IssueSloc') {
+                        arrItem[`${dataSearchHelp.itemTable}`][`${dataSearchHelp.nameField}`] = token.getKey()
+
+                        let issueSloc = JSON.stringify({
+                            index: dataSearchHelp.itemTable,
+                            value: token.getKey()
+                        })
+                        localStorage.setItem("issueSloc", issueSloc)
+                        that.onChangeIssueSloc()
+                    }
+                } else {
+                    if (dataSearchHelp.nameField == 'ReceivingSloc') {
+                        // header.ReceivingSloc = token.getKey()
+                        header[`${dataSearchHelp.nameField}`] = token.getKey()
+                        that.onChangeReceivingSloc()
+                    } else {
+                        header[`${dataSearchHelp.nameField}`] = token.getKey()
+                    }
+                }
+            })
+            // update Model For Fragment reviewFormReservation
+            var oModel = new sap.ui.model.json.JSONModel();
+            oModel.setData({ header: header, items: arrItem });
+            that._oVHD.close()
+            that.reviewFormReservation.setModel(oModel, "selectedItem")
+            // await SearchHelp.onValueHelpOkPress(oEvent, this)
         },
 
         onValueHelpCancelPress: function () {

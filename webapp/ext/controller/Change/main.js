@@ -19,15 +19,15 @@ sap.ui.define([
     return {
         ///------------T2---------- Change Long Text -----------------------------------
         onChangeNote: function (that, sText) {
-            // //Handling String HTML 
-            // function getInnerTextFromHTMLString(htmlString) {
-            //     var parser = new DOMParser();
-            //     var doc = parser.parseFromString(htmlString, 'text/html');
-            //     return doc.body.textContent || "";
-            //   }
+            //Handling String HTML 
+            function getInnerTextFromHTMLString(htmlString) {
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(htmlString, 'text/html');
+                return doc.body.textContent || "";
+              }
               
-            //   // Ví dụ sử dụng
-            //   var innerText = getInnerTextFromHTMLString(sText);
+              // Ví dụ sử dụng
+              var innerText = getInnerTextFromHTMLString(sText);
 
 
             // let that = this
@@ -35,7 +35,7 @@ sap.ui.define([
             let arrItem = that.reviewFormReservation.getModel("selectedItem").oData.items
             // let index = localStorage.getItem("itemLongText")
             // arrItem[index].LongText = sText
-            header.Note = sText
+            header.Note = innerText
 
             // update Model For Fragment reviewFormReservation
             var oModel = new sap.ui.model.json.JSONModel();
@@ -46,12 +46,12 @@ sap.ui.define([
         },
 
         ///------------T2---------- Change Storage Location -----------------------------------
-        onChangeIssueSloc: function (oEvent, that) { // Dòng item change issue sloc\
+        onChangeIssueSloc: function (index, issueSloc, that) { // Dòng item change issue sloc\
             // let that = this
             let header = that.reviewFormReservation.getModel("selectedItem").oData.header
             let arrItem = that.reviewFormReservation.getModel("selectedItem").oData.items
-            let index = oEvent.getSource().getParent().getIndex()
-            let issueSloc = oEvent.getSource().getValue()
+            // let index = oEvent.getSource().getParent().getIndex()
+            // let issueSloc = oEvent.getSource().getValue()
             let model = that.getView().getModel()  ///MCV
             let path = `/ZMM_I_SUM_MATERIAL_STOCK1(Plant='${arrItem[index].Plant}',Material='${arrItem[index].Component}',StorageLocation='${issueSloc}')`
 
