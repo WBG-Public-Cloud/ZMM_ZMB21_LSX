@@ -4,7 +4,7 @@ xmlns="sap.ui.table"
 xmlns:mvc="sap.ui.core.mvc" 
 xmlns:u="sap.ui.unified" 
 xmlns:c="sap.ui.core" 
-xmlns:m="sap.m" 
+xmlns:m="sap.m"
 xmlns:f="sap.ui.layout.form" 
 xmlns:l="sap.ui.layout">
     <m:Dialog id="idHeaderTextInput" title="Reservation">
@@ -12,9 +12,9 @@ xmlns:l="sap.ui.layout">
             <f:SimpleForm id="SimpleFormDisplayColumn_threeGroups346" layout="ColumnLayout" columnsM="2" columnsL="2" columnsXL="2">
                 <f:content>
 
-                    <m:Label text="Receiving Sloc"/>
+                    <m:Label text="Receiving Sloc" required="true"/>
                     <m:Input id="ReceivingSloc" value='{selectedItem>/header/ReceivingSloc}' showValueHelp="true" valueHelpRequest="onReceivingSlocValueHelp" change="onChangeReceivingSloc" required="true"/>
-
+                
                     <m:Label text="Movement Type"/>
                     <m:Input id="MovementType" value='{selectedItem>/header/MovementType}' showValueHelp="true" valueHelpRequest="onMovementTypeValueHelp" required="true"/>
 
@@ -42,7 +42,7 @@ xmlns:l="sap.ui.layout">
                     <m:Input id="RequistionDepartment" value='{selectedItem>/header/RequistionDepartment}'/>
 
                     <m:Label text="Person"/>
-                    <m:Input id="Person" value='{selectedItem>/header/Person}' showValueHelp="true" valueHelpRequest="onPersonValueHelp"/>
+                    <m:Input id="Person" value='{selectedItem>/header/Person}' valueHelpRequest="onPersonValueHelp"/>
 
                     <m:Label text="Note"/>
                     <m:Input id="Note" showValueHelp="true" valueHelpRequest="onNoteValueHelp" value='{selectedItem>/header/Note}'/>
@@ -53,8 +53,8 @@ xmlns:l="sap.ui.layout">
 
 
         <m:content>
-            <!-- <u:ObjectPageLayout> pro    selectionMode="None"-->
-            <Table id="tableItem" rows="{selectedItem>/items}" paste="onPaste" ariaLabelledBy="title">
+            <!-- <u:ObjectPageLayout> pro    selectionMode="None" paste="onPaste" ariaLabelledBy="title"-->
+            <Table id="tableItem" rows="{selectedItem>/items}" paste="onPaste" ariaLabelledBy="title" selectionMode="MultiToggle">
                 <extension>
                     <m:OverflowToolbar style="Clear">
                         <m:Title id="title" text="Reservation Items"/>
@@ -114,12 +114,10 @@ xmlns:l="sap.ui.layout">
                         <template>
                             <m:Text id="RequirementQuantity" text="{   parts: ['selectedItem>RequirementQuantity', 'selectedItem>BaseUnit'], 
                                                                     type: 'sap.ui.model.type.Unit',
-                                                                    formatOptions: {
-                                                                        preserveDecimals : false,
-                                                                        decimals: 2,
-                                                                        maxFractionDigits: 2,
-                                                                        minFractionDigits: 2
-                                                                    }
+                                                            formatOptions: {
+                                                                        preserveDecimals : false
+                                                                    },
+                                                            constraints: { decimals: 3 }
                                                             }"/>
                         </template>
                     </Column>
@@ -138,7 +136,14 @@ xmlns:l="sap.ui.layout">
                     <Column width="7rem">
                         <m:Label text="Request Quantity"/>
                         <template>
-                            <m:Input id="RequestQuantity" value="{selectedItem>RequestQuantity}"/>
+                            <!-- <m:Input type='Text' id="RequestQuantity" value="{selectedItem>RequestQuantity}" liveChange="onLiveChangeParseString"/> -->
+                            <m:Input change="onLiveChangeParseString" type='Text' id="RequestQuantity"  value="{parts: ['selectedItem>RequestQuantity', 'selectedItem>BaseUnit'], 
+                                                            type: 'sap.ui.model.type.Unit',
+                                                            formatOptions: {
+                                                                        preserveDecimals : false
+                                                                    },
+                                                            constraints: { maximum: 16 , decimals: 3 }
+                                                            }"/>
                         </template>
                     </Column>
                     <Column width="12rem">
@@ -147,11 +152,9 @@ xmlns:l="sap.ui.layout">
                             <m:Text id="UUStock" text="{    parts: ['selectedItem>UUStock', 'selectedItem>BaseUnit'], 
                                                             type: 'sap.ui.model.type.Unit',
                                                             formatOptions: {
-                                                                        preserveDecimals : false,
-                                                                        decimals: 2,
-                                                                        maxFractionDigits: 2,
-                                                                        minFractionDigits: 2
-                                                                    }
+                                                                        preserveDecimals : false
+                                                                    },
+                                                            constraints: { decimals: 3 }
                                                         }"/>
                         </template>
                     </Column>
@@ -161,11 +164,9 @@ xmlns:l="sap.ui.layout">
                             <m:Text id="QIStock" text="{   parts: ['selectedItem>QIStock', 'selectedItem>BaseUnit'], 
                                                             type: 'sap.ui.model.type.Unit',
                                                             formatOptions: {
-                                                                        preserveDecimals : false,
-                                                                        decimals: 2,
-                                                                        maxFractionDigits: 2,
-                                                                        minFractionDigits: 2
-                                                                    }
+                                                                        preserveDecimals : false
+                                                                    },
+                                                            constraints: { decimals: 3 }
                                                         }"/>
                         </template>
                     </Column>
@@ -175,12 +176,10 @@ xmlns:l="sap.ui.layout">
                             <!-- <m:Text id="AvailableUUStock" text="{selectedItem>AvailableUUStock}"/> -->
                             <m:Text id="AvailableUUStock" text="{   parts: ['selectedItem>AvailableUUStock', 'selectedItem>BaseUnit'], 
                                                                     type: 'sap.ui.model.type.Unit',
-                                                                    formatOptions: {
-                                                                        preserveDecimals : false,
-                                                                        decimals: 2,
-                                                                        maxFractionDigits: 2,
-                                                                        minFractionDigits: 2
-                                                                    }
+                                                            formatOptions: {
+                                                                        preserveDecimals : false
+                                                                    },
+                                                            constraints: { decimals: 3 }
                                                             }" />
                         </template>
                     </Column>
@@ -207,12 +206,10 @@ xmlns:l="sap.ui.layout">
                         <template>
                             <m:Text id="OpenQuantity" text="{   parts: ['selectedItem>OpenQuantity', 'selectedItem>BaseUnit'], 
                                                                     type: 'sap.ui.model.type.Unit',
-                                                                    formatOptions: {
-                                                                        preserveDecimals : false,
-                                                                        decimals: 2,
-                                                                        maxFractionDigits: 2,
-                                                                        minFractionDigits: 2
-                                                                    }
+                                                            formatOptions: {
+                                                                        preserveDecimals : false
+                                                                    },
+                                                            constraints: { decimals: 3 }
                                                             }" />
                         </template>
                     </Column>
@@ -221,12 +218,10 @@ xmlns:l="sap.ui.layout">
                         <template>
                             <m:Text id="GAPReservationQty" text="{  parts: ['selectedItem>GAPReservationQty', 'selectedItem>BaseUnit'], 
                                                                     type: 'sap.ui.model.type.Unit',
-                                                                    formatOptions: {
-                                                                        preserveDecimals : false,
-                                                                        decimals: 2,
-                                                                        maxFractionDigits: 2,
-                                                                        minFractionDigits: 2
-                                                                    }
+                                                            formatOptions: {
+                                                                        preserveDecimals : false
+                                                                    },
+                                                            constraints: { decimals: 3 }
                                                             }"/>
                         </template>
                     </Column>

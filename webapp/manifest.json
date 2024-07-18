@@ -170,17 +170,9 @@
                             }
                         },
                         "tableSettings": {
+                            "type": "GridTable",
                             "multiSelect": true,
                             "selectAll": true
-                        }
-                    }
-                },
-                "pages": {
-                    "ObjectPage|ZMM_I_ZMB21_LSX": {
-                        "entitySet": "ZMM_I_ZMB21_LSX",
-                        "defaultLayoutTypeIfExternalNavigation": "MidColumnFullScreen",
-                        "component": {
-                            "name": "sap.suite.ui.generic.template.ObjectPage"
                         }
                     }
                 }

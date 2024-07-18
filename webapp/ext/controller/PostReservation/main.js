@@ -21,20 +21,42 @@ sap.ui.define([
             // let that = that
             let isRequire = false
             let messageRequire
-            let oModel = oEvent.getSource()
-            let dataRequest = that.reviewFormReservation.getModel("selectedItem").getData()
+            // let oModel = oEvent.getSource()
+            // let dataRequest = that.reviewFormReservation.getModel("selectedItem").getData()
+
+            let header = that.reviewFormReservation.getModel("selectedItem").oData.header
+            let arrItem = that.reviewFormReservation.getModel("selectedItem").oData.items
+            let arrItemRemove = Fragment.byId("reviewReservation", "tableItem").getSelectedIndices()
+
+            // Tạo một tập hợp (Set) các index được tick
+            let indexesSet = new Set(arrItemRemove);
+            // Sử dụng filter để tạo ra mảng mới
+            let newArray = arrItem.filter((_, i) => indexesSet.has(i));
+            if (newArray.length == 0) {
+                isRequire = true
+                messageRequire = `Please select at least one row in the table.`
+            }
+            let dataRequest = {
+                header: header,
+                items: newArray,
+            }
 
             //Check Matching Sloc
             dataRequest.items.forEach(e => {
 
-                if(e.IssueSloc.localeCompare(dataRequest.header.ReceivingSloc, undefined, { sensitivity: 'base' }) === 0) {
+                if (e.IssueSloc.localeCompare(dataRequest.header.ReceivingSloc, undefined, { sensitivity: 'base' }) === 0) {
                     isRequire = true
                     messageRequire = `Row ${e.No} has the Issue Sloc field matching the Receiving Sloc field,`
                 }
-                if(e.RequestQuantity == 0) {
+                if (e.RequestQuantity == 0) {
                     isRequire = true
                     messageRequire = `Row ${e.No} has request quantity = 0`
                 }
+                if (e.IssueSloc == '') {
+                    isRequire = true
+                    messageRequire = `Row ${e.No} Issue Sloc is not empty`
+                }
+
 
             })
 
@@ -52,11 +74,18 @@ sap.ui.define([
 
             //BaseDate
             // let ArrayBaseDate = dataJSON.header.BaseDate.split("/")
-            if (typeof dataRequest.header.BaseDate == 'string') {
-                dataRequest.header.BaseDate = dataRequest.header.BaseDate
-            } else {
-                dataRequest.header.BaseDate = (dataRequest.header.BaseDate.getFullYear()) + ("0" + (dataRequest.header.BaseDate.getMonth() + 1)).slice(-2) + ("0" + dataRequest.header.BaseDate.getDate()).slice(-2)
+            if (dataRequest.header.BaseDate) {
+                if (typeof dataRequest.header.BaseDate == 'string') {
+                    dataRequest.header.BaseDate = dataRequest.header.BaseDate
+                } else {
+                    dataRequest.header.BaseDate = (dataRequest.header.BaseDate.getFullYear()) + ("0" + (dataRequest.header.BaseDate.getMonth() + 1)).slice(-2) + ("0" + dataRequest.header.BaseDate.getDate()).slice(-2)
+                }
             }
+
+            // dataRequest.forEach((element, index) => {  
+            //     dataRequest[index] = element + 10;  
+            // });
+
             let dataJSON = JSON.stringify(dataRequest)
 
             if (isRequire == false) {

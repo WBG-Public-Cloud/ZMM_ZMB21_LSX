@@ -111,6 +111,7 @@ sap.ui.define([
                         let value = {
                             AvailableUUStock: dataResponse.items[index].AvailableUUStock,
                             GAPReservationQty: dataResponse.items[index].GAPReservationQty,
+                            OpenQuantity: dataResponse.items[index].OpenQuantity,
                         }
 
                         map.set(key, value);
@@ -123,6 +124,8 @@ sap.ui.define([
                         let found = map.get(key)
                         element.AvailableUUStock = found.AvailableUUStock
                         element.GAPReservationQty = found.GAPReservationQty
+                        element.RequestQuantity = found.GAPReservationQty
+                        element.OpenQuantity = found.OpenQuantity
                     })
 
 

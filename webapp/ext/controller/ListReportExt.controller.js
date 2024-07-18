@@ -18,9 +18,10 @@ sap.ui.define([
     'sap/ui/model/Sorter',
     './SearchHelp/main',
     './Change/main',
-    './PostReservation/main'
+    './PostReservation/main',
+    './FormatInt/main'
 
-], function (Dialog, Button, RichTextEditor, MessageToast, MessageBox, Fragment, Controller, JSONModel, Element, SearchField, Filter, UIColumn, MColumn, Label, Text, FilterOperator, Sorter, SearchHelp, Change, PostReservation) {
+], function (Dialog, Button, RichTextEditor, MessageToast, MessageBox, Fragment, Controller, JSONModel, Element, SearchField, Filter, UIColumn, MColumn, Label, Text, FilterOperator, Sorter, SearchHelp, Change, PostReservation, FormatInt) {
     'use strict';
 
     return {
@@ -36,7 +37,6 @@ sap.ui.define([
         openBusyDialog: function () {
             if (!this.busyDialog) {
                 Fragment.load({ id: "busyFragment", name: "zmb21lsx.ext.fragment.Notify.busy", type: "XML", controller: this }).then((oDialog) => {
-                    console.log("oDialog", oDialog)
                     this.busyDialog = oDialog;
                     this.busyDialog.open()
                 }).catch(error => {
@@ -53,35 +53,35 @@ sap.ui.define([
         openTextEditorDialog: function (value) {
             // Create the dialog lazily
             if (!this.TextEditorDialog) {
-            this.TextEditorDialog = new Dialog({
-                title: "Text Editor",
-                contentWidth: "600px",
-                contentHeight: "400px",
-                draggable: true,
-                resizable: true,
-                content: [
-                    new RichTextEditor({
-                        id: this.createId("richTextEditor"),
-                        width: "100%",
-                        height: "100%",
-                        customToolbar: true,
-                        editorType: "TinyMCE5",
-                        value: `${value}`,
-                    })
-                ],
-                beginButton: new Button({
-                    text: "Save",
-                    press: this.onSaveTextEditor.bind(this)
-                }),
-                endButton: new Button({
-                    text: "Cancel",
-                    press: this.onCancelTextEditor.bind(this)
-                }),
-                afterClose: this.onCloseTextEditor.bind(this)
-            });
+                this.TextEditorDialog = new Dialog({
+                    title: "Text Editor",
+                    contentWidth: "600px",
+                    contentHeight: "400px",
+                    draggable: true,
+                    resizable: true,
+                    content: [
+                        new RichTextEditor({
+                            id: this.createId("richTextEditor"),
+                            width: "100%",
+                            height: "100%",
+                            customToolbar: true,
+                            editorType: "TinyMCE5",
+                            value: `${value}`,
+                        })
+                    ],
+                    beginButton: new Button({
+                        text: "Save",
+                        press: this.onSaveTextEditor.bind(this)
+                    }),
+                    endButton: new Button({
+                        text: "Cancel",
+                        press: this.onCancelTextEditor.bind(this)
+                    }),
+                    afterClose: this.onCloseTextEditor.bind(this)
+                });
 
-            // Add the dialog as a dependent to the view
-            // this.getView().addDependent(this.TextEditorDialog);
+                // Add the dialog as a dependent to the view
+                // this.getView().addDependent(this.TextEditorDialog);
             }
             this.TextEditorDialog.open()
         },
@@ -98,11 +98,12 @@ sap.ui.define([
             this.openBusyDialog()
             Promise.all(selectItem).then((value) => {
                 var oModel = new sap.ui.model.json.JSONModel();
+                const date = new Date()
                 let header = {
                     ReceivingSloc: '',
                     MovementType: '311',
                     CostCenter: '',
-                    BaseDate: '',
+                    BaseDate: date,
                     Asset: '',
                     GLAccount: '',
                     RequistionDepartment: '',
@@ -113,6 +114,10 @@ sap.ui.define([
 
                 if (!this.reviewFormReservation) {
                     Fragment.load({ id: 'reviewReservation', name: "zmb21lsx.ext.fragment.formReservation", type: "XML", controller: this }).then((oDialog) => {
+                        //auto check selecr all table
+                        // console.log(oDialog)
+                        // oDialog.getContent()[1].selectAll().setEnableSelectAll(true)
+
                         this.reviewFormReservation = oDialog
                         this.reviewFormReservation.setModel(oModel, "selectedItem")
                         this.reviewFormReservation.open()
@@ -124,6 +129,9 @@ sap.ui.define([
                     })
 
                 } else {
+                    //auto check selecr all table
+                    // this.reviewFormReservation.getContent()[1].selectAll().setEnableSelectAll(true)
+
                     this.reviewFormReservation.setModel(oModel, "selectedItem")
                     this.reviewFormReservation.open()
 
@@ -137,6 +145,7 @@ sap.ui.define([
                 let oModel = element.getModel()
                 oModel.read(element.getPath(), {
                     success: function (oData, oResponse) {
+                        let RequestQuantity = oData.GAPReservationQty
                         let data = {
                             Plant: oData.Plant,
                             Order: oData.OrderLSX,
@@ -146,7 +155,7 @@ sap.ui.define([
                             RequirementQuantity: oData.RequirementQuantity,
                             BaseUnit: oData.BaseUnit,
                             IssueSloc: oData.IssueSloc,
-                            RequestQuantity: oData.RequestQuantity,
+                            RequestQuantity: RequestQuantity,
                             UUStock: oData.UUStock,
                             QIStock: oData.QIStock,
                             AvailableUUStock: oData.AvailableUUStock,
@@ -156,7 +165,9 @@ sap.ui.define([
                             OpenQuantity: oData.OpenQuantity,
                             GAPReservationQty: oData.GAPReservationQty,
                             RequirementDate: oData.RequirementDate,
-                            No: index
+                            No: index,
+                            decimals: oData.Decimals,
+                            DecimalFormat: oData.DecimalFormat,
                         }
                         resolve(data)
                     },
@@ -274,12 +285,17 @@ sap.ui.define([
         ///------------T2---------- Change Storage Location -----------------------------------
         onChangeIssueSloc: async function (oEvent) { // Dòng item change issue sloc\
             let index, value;
+
             // typeof oEvent.getSource().getParent().getIndex() == 'number'
-            if(typeof oEvent == 'undefined'){
+            if (typeof oEvent == 'undefined') {
                 let issueSloc = JSON.parse(localStorage.getItem("issueSloc"))
                 index = issueSloc.index
                 value = issueSloc.value
             } else {
+                // UpperCase
+                var input = oEvent.getSource();
+                input.setValue(input.getValue().toUpperCase());
+
                 index = oEvent.getSource().getParent().getIndex()
                 value = oEvent.getSource().getValue()
             }
@@ -287,13 +303,57 @@ sap.ui.define([
             await Change.onChangeIssueSloc(index, value, this)
         },
 
+        ///------------T2---------- Change Parse String RequestQuantity -----------------------------------
+        onLiveChangeParseString: async function (oEvent) {
+            let value = oEvent.getSource().getValue();
+            let rowIndex = oEvent.getSource().getParent().getIndex()
+            let dataRequest1 = this.reviewFormReservation.getModel("selectedItem")
+            let decimalsUnit = this.reviewFormReservation.getModel("selectedItem").oData.items[rowIndex].decimals
+            let DecimalFormat = this.reviewFormReservation.getModel("selectedItem").oData.items[rowIndex].DecimalFormat
+
+            if(dataRequest1.oData.items[rowIndex].BaseUnit == 'mass-kilogram') {
+                dataRequest1.setProperty(`/items/${rowIndex}/BaseUnit`, 'KG')
+            }
+
+
+            // split space
+            let numberValue = value.split(/\s+/)[0]
+            let outputValue = await FormatInt.onMain(numberValue, DecimalFormat)
+
+            oEvent.getSource().setValueState(sap.ui.core.ValueState.None);
+            oEvent.getSource().openValueStateMessage()
+
+            if(outputValue.type == 'Success'){
+                if(outputValue.decimals > decimalsUnit) {
+                    oEvent.getSource().setValueStateText(`Number without decimals`)
+                    oEvent.getSource().setValueState(sap.ui.core.ValueState.Error);
+                    oEvent.getSource().openValueStateMessage()
+                } else {
+                    dataRequest1.setProperty(`/items/${rowIndex}/RequestQuantity`, outputValue.outValue)
+   
+                    oEvent.getSource().setValueState(sap.ui.core.ValueState.None);
+                    oEvent.getSource().openValueStateMessage()
+                }
+            } else {
+                oEvent.getSource().setValueStateText(`${outputValue.msg}`)
+                oEvent.getSource().setValueState(sap.ui.core.ValueState.Error);
+                oEvent.getSource().openValueStateMessage()
+            }
+        },
         ///------------T2---------- Change ReceivingSloc-----------------------------------
-        onChangeReceivingSloc: async function () {
+        onChangeReceivingSloc: async function (oEvent) {
+            // UpperCase
+            if (typeof oEvent != 'undefined') {
+                var input = oEvent.getSource();
+                input.setValue(input.getValue().toUpperCase());
+            }
             await Change.onChangeReceivingSloc(this)
         },
 
-
-
+        onLiveChangeUpperCase: function (oEvent) {
+            var input = oEvent.getSource();
+            input.setValue(input.getValue().toUpperCase());
+        },
 
 
 
@@ -327,7 +387,7 @@ sap.ui.define([
                 filtertBar: {
                     key: "StorageLocation",
                     items: [
-                        { name: "StorageLocation", label: "Storage Location"},
+                        { name: "StorageLocation", label: "Storage Location" },
                         { name: "StorageLocationName", label: "Storage Location Name" }
                     ]
                 },
@@ -363,7 +423,7 @@ sap.ui.define([
                 filtertBar: {
                     key: "StorageLocation",
                     items: [
-                        { name: "StorageLocation", label: "Storage Location"},
+                        { name: "StorageLocation", label: "Storage Location" },
                         { name: "StorageLocationName", label: "Storage Location Name" }
                     ]
                 },
@@ -396,7 +456,7 @@ sap.ui.define([
                 filtertBar: {
                     key: "GoodsMovementType",
                     items: [
-                        { name: "GoodsMovementType", label: "Movement Type"},
+                        { name: "GoodsMovementType", label: "Movement Type" },
                         { name: "GoodsMovementTypeName", label: "Goods Movement TypeName" }
                     ]
                 },
@@ -420,11 +480,11 @@ sap.ui.define([
                     { element: "GLAccount", elementName: "G/L Account" },
                     { element: "ChartOfAccounts", elementName: "Chart Of Accounts" },
                 ],
-                filter:{},
+                filter: {},
                 filtertBar: {
                     key: "GLAccount",
                     items: [
-                        { name: "GLAccountExternal", label: "GLAccount External"},
+                        { name: "GLAccountExternal", label: "GLAccount External" },
                         { name: "GLAccount", label: "GL Account" },
                         { name: "ChartOfAccounts", label: "Chart Of Accounts" },
                     ]
@@ -450,11 +510,11 @@ sap.ui.define([
                     { element: "ValidityEndDate", elementName: "Valid From" },
                     { element: "CostCenterName", elementName: "Cost Center Name" },
                 ],
-                filter:{},
+                filter: {},
                 filtertBar: {
                     key: "CostCenter",
                     items: [
-                        { name: "CostCenter", label: "Cost Center"},
+                        { name: "CostCenter", label: "Cost Center" },
                         // { name: "ValidityStartDate", label: "Valid To" },
                         // { name: "ValidityEndDate", label: "Valid From" },
                         { name: "CostCenterName", label: "Cost Center Name" },
@@ -486,7 +546,7 @@ sap.ui.define([
                 filtertBar: {
                     key: "MasterFixedAsset",
                     items: [
-                        { name: "MasterFixedAsset", label: "Master Fixed Asset"},
+                        { name: "MasterFixedAsset", label: "Master Fixed Asset" },
                         { name: "FixedAssetExternalID", label: "Fixed Asset External ID" },
                     ]
                 },
@@ -513,7 +573,7 @@ sap.ui.define([
                 filtertBar: {
                     key: "BusinessPartner",
                     items: [
-                        { name: "BusinessPartner", label: "Business Partner"},
+                        { name: "BusinessPartner", label: "Business Partner" },
                         { name: "BusinessPartnerName", label: "Business Partner Name" },
                     ]
                 },

@@ -19,6 +19,6 @@ builder:
         app:
           name: ZMB21LSX
           package: ZPK_MM_ZMB21_LSX
-          transport: JL5K900013
+          transport: JL5K900939
         exclude:
           - /test/
