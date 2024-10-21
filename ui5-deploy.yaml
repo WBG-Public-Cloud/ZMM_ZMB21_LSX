@@ -14,11 +14,11 @@ builder:
       afterTask: generateCachebusterInfo
       configuration:
         target:
-          destination: WBG_S4HC_DEV
-          url: https://my412835-api.s4hana.cloud.sap
+          destination: TNG_S4HC_DEV
+          url: https://my414616-api.s4hana.cloud.sap
         app:
           name: ZMB21LSX
-          package: ZPK_MM_ZMB21_LSX
-          transport: JL5K900939
+          package: ZPK_PP_ZMB21_LSX
+          transport: K9SK901121
         exclude:
           - /test/

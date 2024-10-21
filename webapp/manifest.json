@@ -49,6 +49,7 @@
                     "semanticObject": "zmb21lsx",
                     "action": "display",
                     "title": "{{flpTitle}}",
+                    "subTitle": "{{flpSubtitle}}",
                     "signature": {
                         "parameters": {},
                         "additionalParameters": "allowed"

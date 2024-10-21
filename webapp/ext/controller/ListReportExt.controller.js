@@ -19,9 +19,10 @@ sap.ui.define([
     './SearchHelp/main',
     './Change/main',
     './PostReservation/main',
-    './FormatInt/main'
+    './FormatInt/main',
+    'sap/ui/model/odata/v2/ODataModel'
 
-], function (Dialog, Button, RichTextEditor, MessageToast, MessageBox, Fragment, Controller, JSONModel, Element, SearchField, Filter, UIColumn, MColumn, Label, Text, FilterOperator, Sorter, SearchHelp, Change, PostReservation, FormatInt) {
+], function (Dialog, Button, RichTextEditor, MessageToast, MessageBox, Fragment, Controller, JSONModel, Element, SearchField, Filter, UIColumn, MColumn, Label, Text, FilterOperator, Sorter, SearchHelp, Change, PostReservation, FormatInt, ODataModel) {
     'use strict';
 
     return {
@@ -101,14 +102,16 @@ sap.ui.define([
                 const date = new Date()
                 let header = {
                     ReceivingSloc: '',
-                    MovementType: '311',
+                    MovementType: 'Z01',
                     CostCenter: '',
                     BaseDate: date,
                     Asset: '',
                     GLAccount: '',
                     RequistionDepartment: '',
                     Person: '',
-                    Note: ''
+                    Note: '',
+                    goodsrecipientname: '',
+                    unloadingpointname: ''
                 }
                 oModel.setData({ header: header, items: value });
 
@@ -136,6 +139,7 @@ sap.ui.define([
                     this.reviewFormReservation.open()
 
                 }
+
             })
 
         },
@@ -150,11 +154,16 @@ sap.ui.define([
                             Plant: oData.Plant,
                             Order: oData.OrderLSX,
                             Item: oData.Item,
+                            EditItem: false,
                             Component: oData.Component,
+                            EditComponent: false,
                             ComponentDescription: oData.ComponentDes,
                             RequirementQuantity: oData.RequirementQuantity,
+                            EditRequirementQuantity: false,
                             BaseUnit: oData.BaseUnit,
                             IssueSloc: oData.IssueSloc,
+                            Batch: oData.Batch,
+                            EditBatch: oData.BatchRequired,
                             RequestQuantity: RequestQuantity,
                             UUStock: oData.UUStock,
                             QIStock: oData.QIStock,
@@ -168,6 +177,8 @@ sap.ui.define([
                             No: index,
                             decimals: oData.Decimals,
                             DecimalFormat: oData.DecimalFormat,
+                            countReser: oData.countReser,
+                            QuantityMaSloc: oData.QuantityMaSloc
                         }
                         resolve(data)
                     },
@@ -194,6 +205,10 @@ sap.ui.define([
             let arrItem = this.reviewFormReservation.getModel("selectedItem").oData.items
             let arrItemRemove = Fragment.byId("reviewReservation", "tableItem").getSelectedIndices()
 
+            if (arrItemRemove.length == 0) {
+                return;
+            }
+
             this.openBusyDialog()
 
             // Tạo một tập hợp (Set) các chỉ số để xóa
@@ -219,12 +234,20 @@ sap.ui.define([
 
             let header = this.reviewFormReservation.getModel("selectedItem").oData.header
             let arrItem = this.reviewFormReservation.getModel("selectedItem").oData.items
-            let arrItemRemove = Fragment.byId("reviewReservation", "tableItem").getSelectedIndices()
+            let arrSelect = Fragment.byId("reviewReservation", "tableItem").getSelectedIndices()
+
+            if (arrSelect.length == 0) {
+                return;
+            }
 
             this.openBusyDialog()
 
             // To copy the added items without sharing the same memory 
-            let arrItemAdd = arrItemRemove.map(i => JSON.parse(JSON.stringify(arrItem[i])));
+            let arrItemAdd = arrSelect.map(i => JSON.parse(JSON.stringify(arrItem[i])));
+            //mở edit in field
+            arrItemAdd[0].EditComponent = true
+            arrItemAdd[0].EditItem = true
+            arrItemAdd[0].EditRequirementQuantity = true
 
             // To add all elements of arrItemAdd into arrItem
             arrItem.push(...arrItemAdd)
@@ -236,6 +259,15 @@ sap.ui.define([
             var oModel = new sap.ui.model.json.JSONModel();
             oModel.setData({ header: header, items: arrItem });
             this.reviewFormReservation.setModel(oModel, "selectedItem")
+
+
+            //mở edit in table
+            // let arrItemRemoveEdit = parseInt(arrItemRemove) + 1.
+            // this.reviewFormReservation.getContent()[1].getRows()[arrItemRemoveEdit].getCells()[3].setEditable(true)
+            // this.reviewFormReservation.getContent()[1].getRows()[arrItemRemoveEdit].getCells()[4].setEditable(true)
+            // this.reviewFormReservation.getContent()[1].getRows()[arrItemRemoveEdit].getCells()[6].setEditable(true)
+            // this.reviewFormReservation.getContent()[1].getRows()[arrItemRemoveEdit].getCells()[7].setEditable(true)
+
             this.busyDialog.close()
 
         },
@@ -244,40 +276,6 @@ sap.ui.define([
         onNoteValueHelp: async function (oEvent) {
             // let index = oEvent.getSource().getParent().getIndex()
             let value = oEvent.getSource().getValue()
-            // localStorage.setItem("itemLongText", index)
-            this.openTextEditorDialog(value)
-        },
-
-        onSaveTextEditor: async function () {
-            // Handle save action
-            var oRichTextEditor = this.byId("richTextEditor");
-            var sText = oRichTextEditor.getValue();
-
-            // Process the text as needed
-            await Change.onChangeNote(this, sText)
-        },
-
-        onCancelTextEditor: function () {
-            this.TextEditorDialog.close();
-        },
-
-        onCloseTextEditor: function () {
-            // Perform any cleanup if necessary
-            // Optionally, reset the content of the RichTextEditor if needed
-            var oRichTextEditor = this.byId("richTextEditor");
-            oRichTextEditor.setValue("");
-
-            // Destroy the RichTextEditor to clean up resources
-            if (oRichTextEditor) {
-                oRichTextEditor.destroy();
-            }
-
-            // Destroy the dialog to clean up resources
-            if (this.TextEditorDialog) {
-                this.TextEditorDialog.destroy();
-                this.TextEditorDialog = null;
-            }
-
         },
 
 
@@ -303,15 +301,42 @@ sap.ui.define([
             await Change.onChangeIssueSloc(index, value, this)
         },
 
+        ///------------T2---------- Change Batch -----------------------------------
+        onChangeComponent: async function (oEvent) {
+            let header  = this.reviewFormReservation.getModel("selectedItem").oData.header
+            let arrItem = this.reviewFormReservation.getModel("selectedItem").oData.items
+            let index = oEvent.getSource().getParent().getIndex()
+            let value = oEvent.getSource().getValue()
+
+            let arrData = await this.getDataBaseUnit(value)
+
+            arrItem[index][`BaseUnit`] = arrData.results[0].BaseUnit
+            arrItem[index][`EditBatch`] = arrData.results[0].BatchRequired
+
+            // update Model For Fragment reviewFormReservation
+            var oModel = new sap.ui.model.json.JSONModel();
+            oModel.setData({ header: header, items: arrItem });
+            this.reviewFormReservation.setModel(oModel, "selectedItem")
+        },
+
         ///------------T2---------- Change Parse String RequestQuantity -----------------------------------
         onLiveChangeParseString: async function (oEvent) {
+            console.log("oEvent", oEvent)
+            let mParmaters = oEvent.getParameters().id
+            let field
+            if (mParmaters.includes("RequirementQuantity")) {
+                field = 'RequirementQuantity'
+            } else if (mParmaters.includes("RequestQuantity")) {
+                field = 'RequestQuantity'
+            }
+
             let value = oEvent.getSource().getValue();
             let rowIndex = oEvent.getSource().getParent().getIndex()
             let dataRequest1 = this.reviewFormReservation.getModel("selectedItem")
             let decimalsUnit = this.reviewFormReservation.getModel("selectedItem").oData.items[rowIndex].decimals
             let DecimalFormat = this.reviewFormReservation.getModel("selectedItem").oData.items[rowIndex].DecimalFormat
 
-            if(dataRequest1.oData.items[rowIndex].BaseUnit == 'mass-kilogram') {
+            if (dataRequest1.oData.items[rowIndex].BaseUnit == 'mass-kilogram') {
                 dataRequest1.setProperty(`/items/${rowIndex}/BaseUnit`, 'KG')
             }
 
@@ -323,14 +348,14 @@ sap.ui.define([
             oEvent.getSource().setValueState(sap.ui.core.ValueState.None);
             oEvent.getSource().openValueStateMessage()
 
-            if(outputValue.type == 'Success'){
-                if(outputValue.decimals > decimalsUnit) {
+            if (outputValue.type == 'Success') {
+                if (outputValue.decimals > decimalsUnit) {
                     oEvent.getSource().setValueStateText(`Number without decimals`)
                     oEvent.getSource().setValueState(sap.ui.core.ValueState.Error);
                     oEvent.getSource().openValueStateMessage()
                 } else {
-                    dataRequest1.setProperty(`/items/${rowIndex}/RequestQuantity`, outputValue.outValue)
-   
+                    dataRequest1.setProperty(`/items/${rowIndex}/${field}`, outputValue.outValue)
+
                     oEvent.getSource().setValueState(sap.ui.core.ValueState.None);
                     oEvent.getSource().openValueStateMessage()
                 }
@@ -379,11 +404,11 @@ sap.ui.define([
                     { element: "StorageLocation", elementName: "StorageLocation" },
                     { element: "StorageLocationName", elementName: "StorageLocation Name" }
                 ],
-                filter: {
+                filter: [ {
                     path: "Plant",
                     operator: "EQ",
                     value: `${Plant}`
-                },
+                } ],
                 filtertBar: {
                     key: "StorageLocation",
                     items: [
@@ -393,6 +418,92 @@ sap.ui.define([
                 },
                 fieldSearch: {
                     nameField: "IssueSloc",
+                    itemTable: index
+                }
+
+            }
+            let data = JSON.stringify(vhProperty)
+            localStorage.setItem("vhProperty", data);
+
+            await SearchHelp.onFragmentValueHelp(oEvent, this, vhProperty)
+        },
+
+        //------ Search Help Batch --------
+        onBatchValueHelp: async function (oEvent) {
+            //find index issue sloc change in table
+            let arr = oEvent.getSource().getId().split("--")
+            let arrChild = arr[1].split("-")
+            let index
+            if (arrChild.length >= 2) {
+                index = oEvent.getSource().getParent().getIndex()
+            }
+
+            let Plant = this.reviewFormReservation.getModel("selectedItem").oData.items[index].Plant
+            let Material = this.reviewFormReservation.getModel("selectedItem").oData.items[index].Component
+
+            let vhProperty = {
+                entity: "I_BatchStdVH",
+                fragmentName: 'SearchHelp/SearchHelp',
+                elements: [
+                    { element: "Plant", elementName: "Plant" },
+                    { element: "Material", elementName: "Material" },
+                    { element: "Batch", elementName: "Batch" }
+                ],
+                filter: [
+                    { path: "Material", operator: "EQ", value: `${Material}`},
+                    { path: "Plant", operator: "EQ", value: `${Plant}`}
+                ],
+                filtertBar: {
+                    key: "Batch",
+                    items: [
+                        { name: "Batch", label: "Batch" },
+                        { name: "Material", label: "Material" }
+                    ]
+                },
+                fieldSearch: {
+                    nameField: "Batch",
+                    itemTable: index
+                }
+
+            }
+            let data = JSON.stringify(vhProperty)
+            localStorage.setItem("vhProperty", data);
+
+            await SearchHelp.onFragmentValueHelp(oEvent, this, vhProperty)
+        },
+
+        //------Search Help Component --------
+        onComponentValueHelp: async function (oEvent) {
+            //find index issue sloc change in table
+            let arr = oEvent.getSource().getId().split("--")
+            let arrChild = arr[1].split("-")
+            let index
+            if (arrChild.length >= 2) {
+                index = oEvent.getSource().getParent().getIndex()
+            }
+
+            let vhProperty = {
+                entity: "I_ProductText",
+                fragmentName: 'SearchHelp/SearchHelp',
+                elements: [
+                    { element: "Product", elementName: "Product" },
+                    { element: "Language", elementName: "Language" },
+                    { element: "ProductName", elementName: "Product Name" }
+                ],
+                filter: {
+                    path: "Language",
+                    operator: "EQ",
+                    value: `E`
+                },
+                filtertBar: {
+                    key: "Product",
+                    items: [
+                        { name: "Product", label: "Product" },
+                        { name: "ProductName", label: "Product Name" }
+                    ]
+                },
+                fieldSearch: {
+                    nameField: "Component",
                     itemTable: index
                 }
 
@@ -415,11 +526,11 @@ sap.ui.define([
                     { element: "StorageLocation", elementName: "StorageLocation" },
                     { element: "StorageLocationName", elementName: "StorageLocation Name" }
                 ],
-                filter: {
+                filter: [ {
                     path: "Plant",
                     operator: "EQ",
                     value: `${Plant}`
-                },
+                } ],
                 filtertBar: {
                     key: "StorageLocation",
                     items: [
@@ -599,28 +710,94 @@ sap.ui.define([
             let header = that.reviewFormReservation.getModel("selectedItem").oData.header
             let arrItem = that.reviewFormReservation.getModel("selectedItem").oData.items
             var aTokens = oEvent.getParameter("tokens");
+            let valueSearch
             aTokens.forEach(token => {
-                if (dataSearchHelp.itemTable || dataSearchHelp.itemTable == 0) {
-                    if (dataSearchHelp.nameField == 'IssueSloc') {
-                        arrItem[`${dataSearchHelp.itemTable}`][`${dataSearchHelp.nameField}`] = token.getKey()
+                valueSearch = token.getKey()
+                // if (dataSearchHelp.itemTable || dataSearchHelp.itemTable == 0) {
+                //     if (dataSearchHelp.nameField == 'IssueSloc') {
+                //         arrItem[`${dataSearchHelp.itemTable}`][`${dataSearchHelp.nameField}`] = token.getKey()
 
-                        let issueSloc = JSON.stringify({
-                            index: dataSearchHelp.itemTable,
-                            value: token.getKey()
-                        })
-                        localStorage.setItem("issueSloc", issueSloc)
-                        that.onChangeIssueSloc()
-                    }
-                } else {
-                    if (dataSearchHelp.nameField == 'ReceivingSloc') {
-                        // header.ReceivingSloc = token.getKey()
-                        header[`${dataSearchHelp.nameField}`] = token.getKey()
-                        that.onChangeReceivingSloc()
-                    } else {
-                        header[`${dataSearchHelp.nameField}`] = token.getKey()
-                    }
-                }
+                //         let issueSloc = JSON.stringify({
+                //             index: dataSearchHelp.itemTable,
+                //             value: token.getKey()
+                //         })
+                //         localStorage.setItem("issueSloc", issueSloc)
+                //         that.onChangeIssueSloc()
+                //     } else if (dataSearchHelp.nameField == 'Component') {
+                //         // let arrData = await this.getDataBaseUnit(token.getKey())
+                //         // await arrData.push(this.getDataBaseUnit(token.getKey()))
+
+                //         this.getDataBaseUnit(token.getKey()).then((value) => {
+                //             console.log(value)
+                //         })
+
+                //         arrItem[`${dataSearchHelp.itemTable}`][`${dataSearchHelp.nameField}`] = token.getKey()
+                //         let Component = JSON.stringify({
+                //             index: dataSearchHelp.itemTable,
+                //             value: token.getKey()
+                //         })
+                //         localStorage.setItem("Component", Component)
+
+                //     } else if (dataSearchHelp.nameField == 'Batch') {
+                //         arrItem[`${dataSearchHelp.itemTable}`][`${dataSearchHelp.nameField}`] = token.getKey()
+
+                //         let Batch = JSON.stringify({
+                //             index: dataSearchHelp.itemTable,
+                //             value: token.getKey()
+                //         })
+                //         localStorage.setItem("Batch", Batch)
+                //     }
+                // } else {
+                //     if (dataSearchHelp.nameField == 'ReceivingSloc') {
+                //         // header.ReceivingSloc = token.getKey()
+                //         header[`${dataSearchHelp.nameField}`] = token.getKey()
+                //         that.onChangeReceivingSloc()
+                //     } else {
+                //         header[`${dataSearchHelp.nameField}`] = token.getKey()
+                //     }
+                // }
             })
+            if (dataSearchHelp.itemTable || dataSearchHelp.itemTable == 0) {
+                if (dataSearchHelp.nameField == 'IssueSloc') {
+                    arrItem[`${dataSearchHelp.itemTable}`][`${dataSearchHelp.nameField}`] = valueSearch
+
+                    let issueSloc = JSON.stringify({
+                        index: dataSearchHelp.itemTable,
+                        value: valueSearch
+                    })
+                    localStorage.setItem("issueSloc", issueSloc)
+                    that.onChangeIssueSloc()
+                } else if (dataSearchHelp.nameField == 'Component') {
+                    let arrData = await this.getDataBaseUnit(valueSearch)
+
+                    arrItem[`${dataSearchHelp.itemTable}`][`${dataSearchHelp.nameField}`] = valueSearch
+                    arrItem[`${dataSearchHelp.itemTable}`][`BaseUnit`] = arrData.results[0].BaseUnit
+                    arrItem[`${dataSearchHelp.itemTable}`][`EditBatch`] = arrData.results[0].BatchRequired
+                    arrItem[`${dataSearchHelp.itemTable}`][`ComponentDescription`] = arrData.results[0].ProductName
+                    let Component = JSON.stringify({
+                        index: dataSearchHelp.itemTable,
+                        value: valueSearch
+                    })
+                    localStorage.setItem("Component", Component)
+
+                } else if (dataSearchHelp.nameField == 'Batch') {
+                    arrItem[`${dataSearchHelp.itemTable}`][`${dataSearchHelp.nameField}`] = valueSearch
+
+                    let Batch = JSON.stringify({
+                        index: dataSearchHelp.itemTable,
+                        value: valueSearch
+                    })
+                    localStorage.setItem("Batch", Batch)
+                }
+            } else {
+                if (dataSearchHelp.nameField == 'ReceivingSloc') {
+                    // header.ReceivingSloc = valueSearch
+                    header[`${dataSearchHelp.nameField}`] = valueSearch
+                    that.onChangeReceivingSloc()
+                } else {
+                    header[`${dataSearchHelp.nameField}`] = valueSearch
+                }
+            }
             // update Model For Fragment reviewFormReservation
             var oModel = new sap.ui.model.json.JSONModel();
             oModel.setData({ header: header, items: arrItem });
@@ -636,6 +813,32 @@ sap.ui.define([
             this._oVHD.destroy();
         },
         //----- dùng chung ------------
+
+        //------ get data base unit from search help component
+        getDataBaseUnit: function (filter) {
+            return new Promise((resolve, reject) => {
+                let arrFilter = []
+                arrFilter.push(new Filter('Product', 'EQ', filter))
+
+                var urlMain = "https://" + window.location.hostname + "/sap/opu/odata/sap/ZMM_UI_ZMB21_LSX_O2"
+                var oDataModel = new sap.ui.model.odata.v2.ODataModel(urlMain, { json: true });
+
+                oDataModel.read(`/ZMM_I_PRODUCT_BASEUNIT_BATCH`, {
+                    filters: arrFilter,
+                    urlParameters: {
+                        "$top": 1,
+                        "$select": "BaseUnit, BatchRequired, ProductName",
+                    },
+                    success: function (data) {
+                        resolve(data)
+                    },
+                    error: function (error) {
+                        reject(error)
+                        document.write(error.reponseText)
+                    }
+                })
+            })
+        },
         ///---------T2------------- Search Help Sloc -----------------------------------
 
 

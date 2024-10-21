@@ -29,23 +29,14 @@ xmlns:l="sap.ui.layout">
                                     class="sapUiSmallMarginBottom" 
                                     required="true"/>
 
-                    <m:Label text="Cost Center"/>
-                    <m:Input id="CostCenter" value='{selectedItem>/header/CostCenter}' showValueHelp="true" valueHelpRequest="onCostCenterValueHelp"/>
+                    <m:Label text="Bộ phận yêu cầu"/>
+                    <m:Input id="unloadingpointname" value='{selectedItem>/header/unloadingpointname}'/>
 
-                    <m:Label text="Asset"/>
-                    <m:Input id="Asset" value='{selectedItem>/header/Asset}' showValueHelp="true" valueHelpRequest="onAssetValueHelp"/>
-
-                    <m:Label text="G/L Account"/>
-                    <m:Input id="GLAccount" value='{selectedItem>/header/GLAccount}' showValueHelp="true" valueHelpRequest="onGLAccountValueHelp"/>
-
-                    <m:Label text="Requistion Department"/>
-                    <m:Input id="RequistionDepartment" value='{selectedItem>/header/RequistionDepartment}'/>
-
-                    <m:Label text="Person"/>
-                    <m:Input id="Person" value='{selectedItem>/header/Person}' valueHelpRequest="onPersonValueHelp"/>
+                    <m:Label text="Người yêu cầu"/>
+                    <m:Input id="goodsrecipientname" value='{selectedItem>/header/goodsrecipientname}'/>
 
                     <m:Label text="Note"/>
-                    <m:Input id="Note" showValueHelp="true" valueHelpRequest="onNoteValueHelp" value='{selectedItem>/header/Note}'/>
+                    <m:Input id="Note" value='{selectedItem>/header/Note}'/>
 
                 </f:content>
             </f:SimpleForm>
@@ -94,13 +85,13 @@ xmlns:l="sap.ui.layout">
                     <Column width="6rem" hAlign="End">
                         <m:Label text="Item"/>
                         <template>
-                            <m:Text id="Item" text="{selectedItem>Item}"/>
+                            <m:Input id="Item" value="{selectedItem>Item}" editable="{selectedItem>EditItem}"/>
                         </template>
                     </Column>
                     <Column width="9rem">
                         <m:Label text="Component"/>
                         <template>
-                            <m:Text id="Component" text="{selectedItem>Component}"/>
+                            <m:Input change="onChangeComponent" showValueHelp="true" valueHelpRequest="onComponentValueHelp" id="Component" value="{selectedItem>Component}" editable="{selectedItem>EditComponent}"/>
                         </template>
                     </Column>
                     <Column width="9rem">
@@ -112,25 +103,31 @@ xmlns:l="sap.ui.layout">
                     <Column width="12rem">
                         <m:Label text="Requirement Quantity"/>
                         <template>
-                            <m:Text id="RequirementQuantity" text="{   parts: ['selectedItem>RequirementQuantity', 'selectedItem>BaseUnit'], 
+                            <m:Input change="onLiveChangeParseString" id="RequirementQuantity" value="{   parts: ['selectedItem>RequirementQuantity', 'selectedItem>BaseUnit'], 
                                                                     type: 'sap.ui.model.type.Unit',
                                                             formatOptions: {
                                                                         preserveDecimals : false
                                                                     },
                                                             constraints: { decimals: 3 }
-                                                            }"/>
+                                                            }" editable="{selectedItem>EditRequirementQuantity}"/>
                         </template>
                     </Column>
                     <Column width="9rem">
                         <m:Label text="Base Unit"/>
                         <template>
-                            <m:Text id="BaseUnit" text="{selectedItem>BaseUnit}"/>
+                            <m:Text id="BaseUnit" text="{selectedItem>BaseUnit}" />
                         </template>
                     </Column>
                     <Column width="9rem">
                         <m:Label text="Issue Sloc"/>
                         <template>
                             <m:Input change="onChangeIssueSloc" showValueHelp="true" valueHelpRequest="onIssueSlocValueHelp" id="IssueSloc" value="{selectedItem>IssueSloc}" />
+                        </template>
+                    </Column>
+                    <Column width="9rem">
+                        <m:Label text="Batch"/>
+                        <template>
+                            <m:Input   showValueHelp="true" valueHelpRequest="onBatchValueHelp" id="Batch" value="{selectedItem>Batch}" editable="{selectedItem>EditBatch}"/>
                         </template>
                     </Column>
                     <Column width="7rem">

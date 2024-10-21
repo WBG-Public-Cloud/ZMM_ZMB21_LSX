@@ -30,8 +30,8 @@ server:
         ignoreCertError: false # If set to true, certificate errors will be ignored. E.g. self-signed certificates will be accepted
         backend:
           - path: /sap
-            url: https://my412831-api.s4hana.cloud.sap
-            destination: WBG_S4HC_CUS
+            url: https://my414608-api.s4hana.cloud.sap
+            destination: TNG_S4HC_CUS
     - name: sap-fe-mockserver
       beforeMiddleware: csp
       configuration:

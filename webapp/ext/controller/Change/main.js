@@ -20,29 +20,29 @@ sap.ui.define([
         ///------------T2---------- Change Long Text -----------------------------------
         onChangeNote: function (that, sText) {
             //Handling String HTML 
-            function getInnerTextFromHTMLString(htmlString) {
-                var parser = new DOMParser();
-                var doc = parser.parseFromString(htmlString, 'text/html');
-                return doc.body.textContent || "";
-              }
-              
-              // Ví dụ sử dụng
-              var innerText = getInnerTextFromHTMLString(sText);
+            //function getInnerTextFromHTMLString(htmlString) {
+            //    var parser = new DOMParser();
+            //    var doc = parser.parseFromString(htmlString, 'text/html');
+            //    return doc.body.textContent || "";
+            //  }
+
+            // Ví dụ sử dụng
+            //  var innerText = getInnerTextFromHTMLString(sText);
 
 
             // let that = this
-            let header = that.reviewFormReservation.getModel("selectedItem").oData.header
-            let arrItem = that.reviewFormReservation.getModel("selectedItem").oData.items
+            //let header = that.reviewFormReservation.getModel("selectedItem").oData.header
+            //let arrItem = that.reviewFormReservation.getModel("selectedItem").oData.items
             // let index = localStorage.getItem("itemLongText")
             // arrItem[index].LongText = sText
-            header.Note = innerText
+            //header.Note = innerText
 
             // update Model For Fragment reviewFormReservation
-            var oModel = new sap.ui.model.json.JSONModel();
-            oModel.setData({ header: header, items: arrItem });
-            that.reviewFormReservation.setModel(oModel, "selectedItem")
+            //var oModel = new sap.ui.model.json.JSONModel();
+            //oModel.setData({ header: header, items: arrItem });
+            //that.reviewFormReservation.setModel(oModel, "selectedItem")
 
-            that.TextEditorDialog.close()
+            //that.TextEditorDialog.close()
         },
 
         ///------------T2---------- Change Storage Location -----------------------------------
@@ -100,7 +100,6 @@ sap.ui.define([
                 data: dataJSON,
                 success: function (response, textStatus, jqXHR) {
                     let dataResponse = JSON.parse(response)
-                    console.log(dataResponse)
                     // sử dụng map để read array
                     const map = new Map()
 
@@ -112,6 +111,7 @@ sap.ui.define([
                             AvailableUUStock: dataResponse.items[index].AvailableUUStock,
                             GAPReservationQty: dataResponse.items[index].GAPReservationQty,
                             OpenQuantity: dataResponse.items[index].OpenQuantity,
+                            QuantityMaSloc: dataResponse.items[index].QuantityMaSloc,
                         }
 
                         map.set(key, value);
@@ -124,8 +124,13 @@ sap.ui.define([
                         let found = map.get(key)
                         element.AvailableUUStock = found.AvailableUUStock
                         element.GAPReservationQty = found.GAPReservationQty
-                        element.RequestQuantity = found.GAPReservationQty
+                        if (element.countReser > 0) {
+                            element.RequestQuantity = found.OpenQuantity
+                        } else {
+                            element.RequestQuantity = found.GAPReservationQty
+                        }
                         element.OpenQuantity = found.OpenQuantity
+                        element.QuantityMaSloc = found.QuantityMaSloc
                     })
 
 
@@ -145,6 +150,10 @@ sap.ui.define([
                 }
             });
         },
+
+        onChangeSH: function () {
+
+        }
 
     }
 })

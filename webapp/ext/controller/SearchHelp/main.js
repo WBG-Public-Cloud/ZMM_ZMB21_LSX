@@ -1,10 +1,8 @@
 sap.ui.define([
     "sap/m/MessageToast",
     "sap/m/MessageBox",
-    "sap/ui/core/Fragment",
     "sap/ui/core/mvc/Controller",
     'sap/ui/model/json/JSONModel',
-    'sap/ui/core/Element',
     'sap/m/SearchField',
     'sap/ui/model/Filter',
     'sap/ui/table/Column',
@@ -12,30 +10,13 @@ sap.ui.define([
     'sap/m/Label',
     'sap/m/Text',
     'sap/ui/model/FilterOperator',
-    'sap/ui/model/Sorter'
-], function (MessageToast, MessageBox, Fragment, Controller, JSONModel, Element, SearchField, Filter, UIColumn, MColumn, Label, Text, FilterOperator, Sorter) {
+    'sap/ui/model/Sorter',
+    "sap/ui/model/odata/v2/ODataModel"
+], function (MessageToast, MessageBox,  Controller, JSONModel,  SearchField, Filter, UIColumn, MColumn, Label, Text, FilterOperator, Sorter, ODataModel,) {
     'use strict';
 
     return {
-
         onFragmentValueHelp: function (oEvent, that, vhProperty) {
-            // let arr = oEvent.getSource().getId().split("--")
-            // let arrChild = arr[1].split("-")
-            // let index
-            // if (arrChild.length >= 2) {
-            //     index = oEvent.getSource().getParent().getIndex()
-            // }
-            // let dataSearchHelp = {
-            //     nameField: arrChild[0],
-            //     itemTable: index
-            // }
-
-            // let dataSearchHelp = `${vhProperty.fieldSearch}`
-
-            // dataSearchHelp = JSON.stringify(dataSearchHelp)
-            // // localStorage.removeItem("searchHelp")
-            // localStorage.setItem("searchHelp", dataSearchHelp);
-
             that._oBasicSearchField = new SearchField();
 
             that.loadFragment({
@@ -103,26 +84,7 @@ sap.ui.define([
                 oDialog.open();
             }.bind(that));
         },
-
-        _filterTable: function (oFilter, that) {
-            var oVHD = that._oVHD;
-            if (!oFilter.aFilters || oFilter.aFilters.length == 0) {
-                oFilter = []
-            }
-
-            oVHD.getTableAsync().then(function (oTable) {
-                if (oTable.bindRows) {
-                    oTable.getBinding("rows").filter(oFilter);
-                }
-                if (oTable.bindItems) {
-                    oTable.getBinding("items").filter(oFilter);
-                }
-
-                oVHD.update();
-            });
-        },
-
-        onFilterBarSearch: function (oEvent, that) {
+        onFilterBarSearch: function (oEvent, that) {          
             let vhProperty = JSON.parse(localStorage.getItem("vhProperty"))
             var aSelectionSet = oEvent.getParameter("selectionSet");
             let arrFilter = []
@@ -153,32 +115,46 @@ sap.ui.define([
             }), that);
 
         },
+        onValueHelpOkPress: function (oEvent, that) { 
+            let vhProperty = JSON.parse(localStorage.getItem("vhProperty"));
+            let dataSearchHelp = vhProperty.fieldSearch
 
-        // onValueHelpOkPress: function (oEvent, that) {
-        //     let dataSearchHelp = JSON.parse(localStorage.getItem("searchHelp"))
-        //     let header = that.reviewFormReservation.getModel("selectedItem").oData.header
-        //     let arrItem = that.reviewFormReservation.getModel("selectedItem").oData.items
-        //     var aTokens = oEvent.getParameter("tokens");
-        //     aTokens.forEach(token => {
-        //         if (dataSearchHelp.itemTable || dataSearchHelp.itemTable == 0) {
-        //             if (dataSearchHelp.nameField == 'IssueSloc') {
-        //                 arrItem[`${dataSearchHelp.itemTable}`][`${dataSearchHelp.nameField}`] = token.getKey()
-        //             }
-        //         } else {
-        //             if (dataSearchHelp.nameField == 'ReceivingSloc') {
-        //                 // header.ReceivingSloc = token.getKey()
-        //                 header[`${dataSearchHelp.nameField}`] = token.getKey()
-        //                 that.onChangeReceivingSloc()
-        //             } else {
-        //                 header[`${dataSearchHelp.nameField}`] = token.getKey()
-        //             }
-        //         }
-        //     })
-        //     // update Model For Fragment reviewFormReservation
-        //     var oModel = new sap.ui.model.json.JSONModel();
-        //     oModel.setData({ header: header, items: arrItem });
-        //     that._oVHD.close()
-        //     that.reviewFormReservation.setModel(oModel, "selectedItem")
-        // }
+            let getIndexUOM = JSON.parse(localStorage.getItem('uomSH'))
+            let getIndexSO  = JSON.parse(localStorage.getItem('soSH'))
+
+            var aTokens = oEvent.getParameter("tokens");
+            let data = that.reviewFormReservation.getModel("selectedItem").oData.data
+            let items = that.reviewFormReservation.getModel("selectedItem").oData.items
+            
+            aTokens.forEach(token => {
+                if (dataSearchHelp.nameField == 'MovementType'){ 
+                    data[dataSearchHelp.nameField] = token.getKey();
+                }
+            })
+            var oModel = new sap.ui.model.json.JSONModel();
+            oModel.setData({ data: data, items: items });
+            that.reviewFormReservation.setModel(oModel, "selectedItem")
+            that._oVHD.close()
+        },
+        onValueHelpCancelPress: function (that) {
+            that._oVHD.close()
+        },
+        _filterTable: function (oFilter, that) {
+            var oVHD = that._oVHD;
+            if (!oFilter.aFilters || oFilter.aFilters.length == 0) {
+                oFilter = []
+            }
+
+            oVHD.getTableAsync().then(function (oTable) {
+                if (oTable.bindRows) {
+                    oTable.getBinding("rows").filter(oFilter);
+                }
+                if (oTable.bindItems) {
+                    oTable.getBinding("items").filter(oFilter);
+                }
+
+                oVHD.update();
+            });
+        },
     }
 })

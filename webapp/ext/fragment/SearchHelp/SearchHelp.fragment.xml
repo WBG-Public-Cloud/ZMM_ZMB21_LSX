@@ -5,7 +5,7 @@
 	xmlns:core="sap.ui.core">
 	<ValueHelpDialog
 	    id   ="Location"
-		title="Storage Location"
+		title="{filtertBar>name}"
 		ok=".onValueHelpOkPress"
 		cancel=".onValueHelpCancelPress"
 		afterClose=".onValueHelpAfterClose"
